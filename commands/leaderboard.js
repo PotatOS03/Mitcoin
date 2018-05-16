@@ -30,7 +30,7 @@ module.exports.run = async (bot, message, args) => {
     if (leaderboard[2] && leaderboard[2].balance > 0) lEmbed.addField("Third Place", `${leaderboard[2].name} | ${Math.round(leaderboard[2].balance * 100) / 100} MTC`)
     if (leaderboard[3] && leaderboard[3].balance > 0) lEmbed.addField("Fourth Place", `${leaderboard[3].name} | ${Math.round(leaderboard[3].balance * 100) / 100} MTC`)
     if (leaderboard[4] && leaderboard[4].balance > 0) lEmbed.addField("Fifth Place", `${leaderboard[4].name} | ${Math.round(leaderboard[4].balance * 100) / 100} MTC`)
-    if (userPlace > 5 && leaderboard[userPlace].balance > 0) lEmbed.addField("Your Place", userPlace)
+    if (userPlace > 5 && leaderboard[userPlace - 1].balance > 0) lEmbed.addField("Your Place", userPlace)
     lEmbed.setTimestamp(message.createdAt);
 
     message.channel.send(lEmbed);

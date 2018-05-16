@@ -37,7 +37,6 @@ module.exports.run = async (bot, message, args) => {
     }, 86400000);
 
     if (!mitcoinInfo.balances[payUser.id]) mitcoinInfo.balances[payUser.id] = {
-        name: payUser.user.username,
         balance: 0
     };
 

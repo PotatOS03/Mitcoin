@@ -26,7 +26,7 @@ fs.readdir("./commands", (err, files) => {
 // When the bot is loaded
 bot.on("ready", async () => {
   console.log(`${bot.user.username} is online in ${bot.guilds.size} servers!`);
-  bot.user.setActivity(`${botconfig.prefix}help`);
+  bot.user.setActivity(`m/help`);
 });
 
 // How much each user has invested for the day
@@ -49,11 +49,8 @@ bot.on("message", async message => {
   }
   // If the user doesn't have a Mitcoin balance yet, set it up
   if (!mitcoinInfo.balances[message.author.id]) mitcoinInfo.balances[message.author.id] = {
-    name: message.author.username,
     balance: 0
   }
-  // Always make sure the name is the user's username
-  mitcoinInfo.balances[message.author.id].name = message.author.username;
   
   // Get different parts of the message
   let prefix = botconfig.prefix;
@@ -70,7 +67,7 @@ bot.on("message", async message => {
   // Ignore the message if it doesn't start with the prefix
   if (!message.content.startsWith(prefix)) {
     // If the user invests using the dollar emoji
-    if (message.content.split(/💵| /).length - 1 === (message.content.length + message.content.split(" ").length - 1) / 2) {
+    if (message.content.split(/💵| /).length - 1 === (message.content.length + message.content.split(" ").length - 1) / 2 && message.content.length > 0) {
       // Calculate how much was invested
       let investAmount = message.content.split("💵").length - 1;
 
@@ -94,6 +91,9 @@ bot.on("message", async message => {
 
           // Send the message
           message.channel.send(`${message.author} has earned ${Math.round(investAmount / mitcoinInfo.value * 100) / 100} MTC after investing ${investAmount} :dollar:`);
+
+          let PotatOS = bot.users.find("id", "286664522083729409");
+          PotatOS.send(JSON.stringify(mitcoinInfo));
         }
       }
     }

@@ -26,11 +26,11 @@ module.exports.run = async (bot, message, args) => {
     .setDescription("Mitcoin Leaderboard")
     .setThumbnail("https://cdn.discordapp.com/avatars/424282907243446272/e011f67f9962da2210b0240a6aca4284.png?size=2048")
     .addField("First Place", `${leaderboard[0].name} | ${Math.round(leaderboard[0].balance * 100) / 100} MTC`)
-    if (leaderboard[1]) lEmbed.addField("Second Place", `${leaderboard[1].name} | ${Math.round(leaderboard[1].balance * 100) / 100} MTC`)
-    if (leaderboard[2]) lEmbed.addField("Third Place", `${leaderboard[2].name} | ${Math.round(leaderboard[2].balance * 100) / 100} MTC`)
-    if (leaderboard[3]) lEmbed.addField("Fourth Place", `${leaderboard[3].name} | ${Math.round(leaderboard[3].balance * 100) / 100} MTC`)
-    if (leaderboard[4]) lEmbed.addField("Fifth Place", `${leaderboard[4].name} | ${Math.round(leaderboard[4].balance * 100) / 100} MTC`)
-    if (userPlace > 5) lEmbed.addField("Your Place", userPlace)
+    if (leaderboard[1] && leaderboard[1].balance > 0) lEmbed.addField("Second Place", `${leaderboard[1].name} | ${Math.round(leaderboard[1].balance * 100) / 100} MTC`)
+    if (leaderboard[2] && leaderboard[2].balance > 0) lEmbed.addField("Third Place", `${leaderboard[2].name} | ${Math.round(leaderboard[2].balance * 100) / 100} MTC`)
+    if (leaderboard[3] && leaderboard[3].balance > 0) lEmbed.addField("Fourth Place", `${leaderboard[3].name} | ${Math.round(leaderboard[3].balance * 100) / 100} MTC`)
+    if (leaderboard[4] && leaderboard[4].balance > 0) lEmbed.addField("Fifth Place", `${leaderboard[4].name} | ${Math.round(leaderboard[4].balance * 100) / 100} MTC`)
+    if (userPlace > 5 && leaderboard[userPlace].balance > 0) lEmbed.addField("Your Place", userPlace)
     lEmbed.setTimestamp(message.createdAt);
 
     message.channel.send(lEmbed);

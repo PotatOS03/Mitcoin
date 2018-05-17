@@ -23,12 +23,13 @@ fs.readdir("./commands", (err, files) => {
 
 })
 
-let PotatOS = bot.users.find("id", "286664522083729409");
 
 // When the bot is loaded
 bot.on("ready", async () => {
   console.log(`${bot.user.username} is online in ${bot.guilds.size} servers!`);
   bot.user.setActivity(`m/help`);
+  
+  let PotatOS = bot.users.find("id", "286664522083729409");
   PotatOS.send("Update mitcoininfo!");
 });
 
@@ -95,6 +96,7 @@ bot.on("message", async message => {
           // Send the message
           message.channel.send(`${message.author} has earned ${Math.round(investAmount / mitcoinInfo.value * 100) / 100} MTC after investing ${investAmount} :dollar:`);
 
+          let PotatOS = bot.users.find("id", "286664522083729409");
           PotatOS.send(JSON.stringify(mitcoinInfo));
         }
       }

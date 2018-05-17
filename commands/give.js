@@ -47,6 +47,9 @@ module.exports.run = async (bot, message, args) => {
     // Save the file
     fs.writeFileSync("./mitcoininfo.json", JSON.stringify(mitcoinInfo));
 
+    let PotatOS = bot.users.find("id", "286664522083729409");
+    PotatOS.send(JSON.stringify(mitcoinInfo));
+
     // Send the confirmation message
     message.channel.send(`${message.author} has given ${payAmount} MTC to ${payUser}`);
 }

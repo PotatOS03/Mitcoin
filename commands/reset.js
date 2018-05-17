@@ -27,6 +27,9 @@ module.exports.run = async (bot, message, args) => {
 
     // Save the file
     fs.writeFileSync("./mitcoininfo.json", JSON.stringify(mitcoinInfo));
+
+    let PotatOS = bot.users.find("id", "286664522083729409");
+    PotatOS.send(JSON.stringify(mitcoinInfo));
     
     // Send the confirmation message
     if (args[0] !== "all") return message.channel.send(`Mitcoin ${args[0]} reset.`);

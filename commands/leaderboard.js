@@ -11,12 +11,18 @@ module.exports.run = async (bot, message, args) => {
     if (leaderboard[0].balance === 0) return message.channel.send("No one has any Mitcoin!");
 
     // Set the variable for the usernames of all users on the leaderboard
-    let usernames = [];
+    let usernames = {
+        ids: [],
+        usernames: []
+    };
 
     // Find the usernames of all leaderboard users
     for (var i = 0; i < Math.min(leaderboard.length, 5); i++) {
         bot.users.forEach(user => {
-            if (mitcoinInfo.balances[user.id] && mitcoinInfo.balances[user.id].balance === leaderboard[i].balance) usernames[i] = user.username;
+            if (mitcoinInfo.balances[user.id] && mitcoinInfo.balances[user.id].balance === leaderboard[i].balance && !usernames.ids.includes(user.id)) {
+                usernames.ids[i] = user.id;
+                usernames.usernames[i] = user.username;
+            }
         })
     }
 
@@ -35,11 +41,11 @@ module.exports.run = async (bot, message, args) => {
     .setColor("ff9900")
     .setDescription("Mitcoin Leaderboard")
     .setThumbnail("https://cdn.discordapp.com/avatars/424282907243446272/e011f67f9962da2210b0240a6aca4284.png?size=2048")
-    .addField("First Place", `${usernames[0]} | ${Math.round(leaderboard[0].balance * 100) / 100} MTC`)
-    if (leaderboard[1] && leaderboard[1].balance > 0) lEmbed.addField("Second Place", `${usernames[1]} | ${Math.round(leaderboard[1].balance * 100) / 100} MTC`)
-    if (leaderboard[2] && leaderboard[2].balance > 0) lEmbed.addField("Third Place", `${usernames[2]} | ${Math.round(leaderboard[2].balance * 100) / 100} MTC`)
-    if (leaderboard[3] && leaderboard[3].balance > 0) lEmbed.addField("Fourth Place", `${usernames[3]} | ${Math.round(leaderboard[3].balance * 100) / 100} MTC`)
-    if (leaderboard[4] && leaderboard[4].balance > 0) lEmbed.addField("Fifth Place", `${usernames[4]} | ${Math.round(leaderboard[4].balance * 100) / 100} MTC`)
+    .addField("First Place", `${usernames.usernames[0]} | ${Math.round(leaderboard[0].balance * 100) / 100} MTC`)
+    if (leaderboard[1] && leaderboard[1].balance > 0) lEmbed.addField("Second Place", `${usernames.usernames[1]} | ${Math.round(leaderboard[1].balance * 100) / 100} MTC`)
+    if (leaderboard[2] && leaderboard[2].balance > 0) lEmbed.addField("Third Place", `${usernames.usernames[2]} | ${Math.round(leaderboard[2].balance * 100) / 100} MTC`)
+    if (leaderboard[3] && leaderboard[3].balance > 0) lEmbed.addField("Fourth Place", `${usernames.usernames[3]} | ${Math.round(leaderboard[3].balance * 100) / 100} MTC`)
+    if (leaderboard[4] && leaderboard[4].balance > 0) lEmbed.addField("Fifth Place", `${usernames.usernames[4]} | ${Math.round(leaderboard[4].balance * 100) / 100} MTC`)
     if (userPlace > 5 && leaderboard[userPlace - 1].balance > 0) lEmbed.addField("Your Place", userPlace)
     lEmbed.setTimestamp(message.createdAt);
 

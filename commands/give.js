@@ -14,7 +14,7 @@ module.exports.run = async (bot, message, args) => {
 
     // If no amount is specified
     if (!args[1]) return message.channel.send("Specify an amount to pay");
-    let payAmount = parseInt(args[1]);
+    let payAmount = parseFloat(args[1]);
     if (!payAmount || payAmount <= 0) return message.channel.send(`Specify a valid number to pay`);
     if (payAmount > 3) return message.channel.send("You can not pay more than 3 Mitcoin");
 
@@ -37,7 +37,8 @@ module.exports.run = async (bot, message, args) => {
     }, 86400000);
 
     if (!mitcoinInfo.balances[payUser.id]) mitcoinInfo.balances[payUser.id] = {
-        balance: 0
+        balance: 0,
+        money: 1
     };
 
     // Actually calculate the payment
@@ -47,8 +48,8 @@ module.exports.run = async (bot, message, args) => {
     // Save the file
     fs.writeFileSync("./mitcoininfo.json", JSON.stringify(mitcoinInfo));
 
-    let PotatOS = bot.users.find("id", "286664522083729409");
-    PotatOS.send(JSON.stringify(mitcoinInfo));
+    let logChannel = bot.channels.find("id", "446758326035021824");
+    logChannel.send(JSON.stringify(mitcoinInfo));
 
     // Send the confirmation message
     message.channel.send(`${message.author} has given ${payAmount} MTC to ${payUser}`);

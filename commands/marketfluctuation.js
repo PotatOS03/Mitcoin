@@ -16,9 +16,9 @@ module.exports.run = async (bot, message, args) => {
     mitcoinInfo.value *= (fluctuation + 100) / 100;
     // Save to the file
     fs.writeFileSync("./mitcoininfo.json", JSON.stringify(mitcoinInfo));
-    
-    let PotatOS = bot.users.find("id", "286664522083729409");
-    PotatOS.send(JSON.stringify(mitcoinInfo));
+
+    let logChannel = bot.channels.find("id", "446758326035021824");
+    logChannel.send(JSON.stringify(mitcoinInfo));
 
     // If Mitcoin's value is increased
     if (fluctuation > 0) message.channel.send(`:loudspeaker: BREAKING NEWS: The vaule of Mitcoin has been raised by ${fluctuation}% :chart_with_upwards_trend:\n1 MTC is now worth about ${Math.round(mitcoinInfo.value * 100) / 100} :dollar:`);

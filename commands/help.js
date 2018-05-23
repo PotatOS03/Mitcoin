@@ -10,6 +10,7 @@ module.exports.run = async (bot, message, args) => {
     .addField("leaderboard", "View the current Mitcoin leaderboard")
     .addField("logo", "See the Mitcoin logo")
     .addField("value", "View Mitcoin's value")
+    .addField("sell", "Sell up to 3 MTC in return for 💵")
     .addField("How to invest", "Simply type 💵 in the chat up to three times to invest in MTC")
     
     message.channel.send(helpEmbed);

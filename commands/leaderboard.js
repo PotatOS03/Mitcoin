@@ -5,8 +5,8 @@ module.exports.run = async (bot, message, args) => {
     // File for Mitcoin value and all user balances
     let mitcoinInfo = require("../mitcoininfo.json");
     // Sort all user balances and store them in the leaderboard
-    let leaderboard = Object.values(mitcoinInfo.balances).sort((a, b) => b.balance > a.balance);
-
+    let leaderboard = Object.values(mitcoinInfo.balances).sort((a, b) => b.balance - a.balance);
+    
     // If there are no existing user balances
     if (leaderboard[0].balance === 0) return message.channel.send("No one has any Mitcoin!");
 

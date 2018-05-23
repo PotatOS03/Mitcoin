@@ -124,7 +124,7 @@ setInterval(function() {
   bot.user.setActivity(`MTC Value: ${Math.round(mitcoinInfo.value * 100) / 100} | m/help`);
   
   fs.writeFileSync("./mitcoininfo.json", JSON.stringify(mitcoinInfo));
-}, 10000);
+}, 600000);
 
 // When the bot is loaded
 bot.on("ready", async () => {

@@ -41,11 +41,11 @@ module.exports.run = async (bot, message, args) => {
     .setColor("ff9900")
     .setDescription("Mitcoin Leaderboard")
     .setThumbnail("https://cdn.discordapp.com/avatars/424282907243446272/e011f67f9962da2210b0240a6aca4284.png?size=2048")
-    .addField("First Place", `${usernames.usernames[0]} | ${Math.round(leaderboard[0].balance * 100) / 100} MTC`)
-    if (leaderboard[1] && leaderboard[1].balance > 0) lEmbed.addField("Second Place", `${usernames.usernames[1]} | ${Math.round(leaderboard[1].balance * 100) / 100} MTC`)
-    if (leaderboard[2] && leaderboard[2].balance > 0) lEmbed.addField("Third Place", `${usernames.usernames[2]} | ${Math.round(leaderboard[2].balance * 100) / 100} MTC`)
-    if (leaderboard[3] && leaderboard[3].balance > 0) lEmbed.addField("Fourth Place", `${usernames.usernames[3]} | ${Math.round(leaderboard[3].balance * 100) / 100} MTC`)
-    if (leaderboard[4] && leaderboard[4].balance > 0) lEmbed.addField("Fifth Place", `${usernames.usernames[4]} | ${Math.round(leaderboard[4].balance * 100) / 100} MTC`)
+    .addField("First Place", `${usernames.usernames[0]} | ${Math.round(leaderboard[0].balance * 100) / 100} <:MTC:449007845954945026>`)
+    if (leaderboard[1] && leaderboard[1].balance > 0) lEmbed.addField("Second Place", `${usernames.usernames[1]} | ${Math.round(leaderboard[1].balance * 100) / 100} <:MTC:449007845954945026>`)
+    if (leaderboard[2] && leaderboard[2].balance > 0) lEmbed.addField("Third Place", `${usernames.usernames[2]} | ${Math.round(leaderboard[2].balance * 100) / 100} <:MTC:449007845954945026>`)
+    if (leaderboard[3] && leaderboard[3].balance > 0) lEmbed.addField("Fourth Place", `${usernames.usernames[3]} | ${Math.round(leaderboard[3].balance * 100) / 100} <:MTC:449007845954945026>`)
+    if (leaderboard[4] && leaderboard[4].balance > 0) lEmbed.addField("Fifth Place", `${usernames.usernames[4]} | ${Math.round(leaderboard[4].balance * 100) / 100} <:MTC:449007845954945026>`)
     if (userPlace > 5 && leaderboard[userPlace - 1].balance > 0) lEmbed.addField("Your Place", userPlace)
     lEmbed.setTimestamp(message.createdAt);
 

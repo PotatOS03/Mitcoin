@@ -14,8 +14,8 @@ module.exports.run = async (bot, message, args) => {
     // How much the balance is worth in dollars
     let dollarBal = mitcoinInfo.value * MTCBal;
     // Send the user's balance and value
-    if (mitcoinInfo.balances[message.author.id].money > 0) return message.reply(`you have ${Math.round(MTCBal * 100) / 100} MTC, which is about ${Math.round(dollarBal * 100) / 100} :dollar:\nYou also have ${Math.round(mitcoinInfo.balances[message.author.id].money * 100) / 100} :dollar:`);
-    message.reply(`you have ${Math.round(MTCBal * 100) / 100} MTC, which is about ${Math.round(dollarBal * 100) / 100} :dollar:\nYou cannot currently invest any more :dollar:`);
+    if (mitcoinInfo.balances[message.author.id].money > 0) return message.reply(`you have ${Math.round(MTCBal * 100) / 100} <:MTC:449007845954945026>, which is about ${Math.round(dollarBal * 100) / 100} :dollar:\nYou also have ${Math.round(mitcoinInfo.balances[message.author.id].money * 100) / 100} :dollar:`);
+    message.reply(`you have ${Math.round(MTCBal * 100) / 100} <:MTC:449007845954945026>, which is about ${Math.round(dollarBal * 100) / 100} :dollar:\nYou cannot currently invest any more :dollar:`);
 }
 
 module.exports.help = {

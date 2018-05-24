@@ -52,7 +52,7 @@ module.exports.run = async (bot, message, args) => {
     logChannel.send(JSON.stringify(mitcoinInfo));
 
     // Send the confirmation message
-    message.channel.send(`${message.author} has given ${payAmount} MTC to ${payUser}`);
+    message.channel.send(`${message.author} has given ${payAmount} <:MTC:449007845954945026> to ${payUser}`);
 }
 
 module.exports.help = {

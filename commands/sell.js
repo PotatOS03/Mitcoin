@@ -40,11 +40,11 @@ module.exports.run = async (bot, message, args) => {
     logChannel.send(JSON.stringify(mitcoinInfo));
 
     // Send the confirmation message
-    message.channel.send(`${message.author} has sold ${sellAmount} MTC and recieved ${Math.round(sellAmount * mitcoinInfo.value * 100) / 100} :dollar:`);
+    message.channel.send(`${message.author} has sold ${sellAmount} <:MTC:449007845954945026> and recieved ${Math.round(sellAmount * mitcoinInfo.value * 100) / 100} :dollar:`);
 }
 
 module.exports.help = {
     name: "sell",
-    desc: "Sell MTC for :dollar:",
+    desc: "Sell <:MTC:449007845954945026> for :dollar:",
     usage: " [amount]"
 }

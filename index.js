@@ -115,7 +115,7 @@ let valueTimer = 0;
 setInterval(function() {
   valueTimer++;
   let simplex = interval.noise(valueTimer * 1, 0.5);
-  let fluctuation = Math.round((simplex + 1) / 2 * 10 - 4.9);
+  let fluctuation = Math.round((simplex + 1) / 2 * 10 - 5);
 
   let mitcoinInfo = require("./mitcoininfo.json");
 

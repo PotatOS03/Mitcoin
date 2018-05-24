@@ -11,15 +11,19 @@ module.exports.run = async (bot, message, args) => {
     let payUser = message.mentions.members.first();
     if (!payUser || payUser.user.bot) return message.channel.send("Specify a valid user");
     if (payUser === message.member) return message.channel.send("You can't pay yourself!")
+    
+    // File for Mitcoin value and all user balances
+    let mitcoinInfo = require("../mitcoininfo.json");
 
     // If no amount is specified
     if (!args[1]) return message.channel.send("Specify an amount to pay");
-    let payAmount = parseFloat(args[1]);
+
+    let payAmount = parseFloat(args[1]).toFixed(2);
+    if (args[1].toLowerCase() === "all") payAmount = mitcoinInfo.balances[message.author.id].balance;
+
+    if (mitcoinInfo.balances[message.author.id].balance === 0) return message.reply("you don't have any Mitcoin!");
     if (!payAmount || payAmount <= 0) return message.channel.send(`Specify a valid number to pay`);
     if (payAmount > 3) return message.channel.send("You can not pay more than 3 Mitcoin");
-
-    // File for Mitcoin value and all user balances
-    let mitcoinInfo = require("../mitcoininfo.json");
     
     // If the user has less Mitcoin than they say to pay
     if (mitcoinInfo.balances[message.author.id].balance < payAmount) return message.reply("you don't have enough Mitcoin to pay!");
@@ -33,7 +37,7 @@ module.exports.run = async (bot, message, args) => {
     payments[message.author.id].payments += payAmount;
     setTimeout(function() {
         payments[message.author.id].payments = 0;
-        message.reply("you may pay again!");
+        message.reply("you may give again!");
     }, 86400000);
 
     if (!mitcoinInfo.balances[payUser.id]) mitcoinInfo.balances[payUser.id] = {

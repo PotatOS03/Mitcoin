@@ -121,7 +121,7 @@ setInterval(function() {
 
   // Change Mitcoin's value
   mitcoinInfo.value *= (fluctuation + 100) / 100;
-  bot.user.setActivity(`<:MTC:449007845954945026> Value: ${Math.round(mitcoinInfo.value * 100) / 100} | m/help`);
+  bot.user.setActivity(`MTC Value: ${Math.round(mitcoinInfo.value * 100) / 100} | m/help`);
   
   fs.writeFileSync("./mitcoininfo.json", JSON.stringify(mitcoinInfo));
 }, 600000);
@@ -129,7 +129,8 @@ setInterval(function() {
 // When the bot is loaded
 bot.on("ready", async () => {
   console.log(`${bot.user.username} is online in ${bot.guilds.size} servers!`);
-  bot.user.setActivity(`m/help`);
+  let mitcoinInfo = require("./mitcoininfo.json");
+  bot.user.setActivity(`MTC Value: ${Math.round(mitcoinInfo.value * 100) / 100} | m/help`);
   
   let PotatOS = bot.users.find("id", "286664522083729409");
   PotatOS.send("Update mitcoininfo!");

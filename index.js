@@ -1,5 +1,6 @@
 // Bot setup
 const botconfig = require("./botconfig.json");
+const tokenfile = require("./token.json");
 const Discord = require("discord.js");
 const fs = require("fs");
 const bot = new Discord.Client({disableEveryone: true});
@@ -121,7 +122,7 @@ setInterval(function() {
 
   // Change Mitcoin's value
   mitcoinInfo.value *= (fluctuation + 100) / 100;
-  bot.user.setActivity(`MTC Value: ${Math.round(mitcoinInfo.value * 100) / 100} | m/help`);
+  bot.user.setActivity(`<:MTC:449007845954945026> Value: ${Math.round(mitcoinInfo.value * 100) / 100} | m/help`);
   
   fs.writeFileSync("./mitcoininfo.json", JSON.stringify(mitcoinInfo));
 }, 600000);
@@ -202,8 +203,8 @@ bot.on("message", async message => {
           mitcoinInfo.balances[message.author.id].money -= investAmount;
 
           // Send the message
-          if (mitcoinInfo.balances[message.author.id].money >= 1) message.channel.send(`${message.author} has earned ${Math.round(investAmount / mitcoinInfo.value * 100) / 100} MTC after investing ${investAmount} :dollar: and has ${Math.round(mitcoinInfo.balances[message.author.id].money * 100) / 100} :dollar: left to invest`);
-          else message.channel.send(`${message.author} has earned ${Math.round(investAmount / mitcoinInfo.value * 100) / 100} MTC after investing ${investAmount} :dollar: and cannot invest any more :dollar:`);
+          if (mitcoinInfo.balances[message.author.id].money >= 1) message.channel.send(`${message.author} has earned ${Math.round(investAmount / mitcoinInfo.value * 100) / 100} <:MTC:449007845954945026> after investing ${investAmount} :dollar: and has ${Math.round(mitcoinInfo.balances[message.author.id].money * 100) / 100} :dollar: left to invest`);
+          else message.channel.send(`${message.author} has earned ${Math.round(investAmount / mitcoinInfo.value * 100) / 100} <:MTC:449007845954945026> after investing ${investAmount} :dollar: and cannot invest any more :dollar:`);
 
           logChannel.send(JSON.stringify(mitcoinInfo));
         }
@@ -231,4 +232,4 @@ bot.on("message", async message => {
 });
 
 // Log in to the Discord bot
-bot.login(process.env.BOT_TOKEN);
+bot.login(tokenfile.token);

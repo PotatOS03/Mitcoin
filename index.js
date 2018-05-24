@@ -115,13 +115,13 @@ let valueTimer = 0;
 setInterval(function() {
   valueTimer++;
   let simplex = interval.noise(valueTimer * 1, 0.5);
-  let fluctuation = Math.round((simplex + 1) / 2 * 50 - 20);
+  let fluctuation = Math.round((simplex + 1) / 2 * 10 - 4.9);
 
   let mitcoinInfo = require("./mitcoininfo.json");
 
   // Change Mitcoin's value
   mitcoinInfo.value *= (fluctuation + 100) / 100;
-  bot.user.setActivity(`MTC Value: ${Math.round(mitcoinInfo.value * 100) / 100} | m/help`);
+  bot.user.setActivity(`MTC Value: ${mitcoinInfo.value.toFixed(2)} | m/help`);
   
   fs.writeFileSync("./mitcoininfo.json", JSON.stringify(mitcoinInfo));
 }, 600000);
@@ -130,7 +130,7 @@ setInterval(function() {
 bot.on("ready", async () => {
   console.log(`${bot.user.username} is online in ${bot.guilds.size} servers!`);
   let mitcoinInfo = require("./mitcoininfo.json");
-  bot.user.setActivity(`MTC Value: ${Math.round(mitcoinInfo.value * 100) / 100} | m/help`);
+  bot.user.setActivity(`MTC Value: ${mitcoinInfo.value.toFixed(2)} | m/help`);
   
   let PotatOS = bot.users.find("id", "286664522083729409");
   PotatOS.send("Update mitcoininfo!");
@@ -203,8 +203,8 @@ bot.on("message", async message => {
           mitcoinInfo.balances[message.author.id].money -= investAmount;
 
           // Send the message
-          if (mitcoinInfo.balances[message.author.id].money >= 1) message.channel.send(`${message.author} has earned ${Math.round(investAmount / mitcoinInfo.value * 100) / 100} <:MTC:449007845954945026> after investing ${investAmount} :dollar: and has ${Math.round(mitcoinInfo.balances[message.author.id].money * 100) / 100} :dollar: left to invest`);
-          else message.channel.send(`${message.author} has earned ${Math.round(investAmount / mitcoinInfo.value * 100) / 100} <:MTC:449007845954945026> after investing ${investAmount} :dollar: and cannot invest any more :dollar:`);
+          if (mitcoinInfo.balances[message.author.id].money >= 1) message.channel.send(`${message.author} has earned ${(investAmount / mitcoinInfo.value).toFixed(2)} <:MTC:449007845954945026> after investing ${investAmount} :dollar: and has ${(mitcoinInfo.balances[message.author.id].money).toFixed(2)} :dollar: left to invest`);
+          else message.channel.send(`${message.author} has earned ${(investAmount / mitcoinInfo.value).toFixed(2)} <:MTC:449007845954945026> after investing ${investAmount} :dollar: and cannot invest any more :dollar:`);
 
           logChannel.send(JSON.stringify(mitcoinInfo));
         }

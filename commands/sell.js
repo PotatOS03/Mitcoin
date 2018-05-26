@@ -14,7 +14,7 @@ module.exports.run = async (bot, message, args) => {
     if (args[0].toLowerCase() === "all") sellAmount = mitcoinInfo.balances[message.author.id].balance;
 
     if (mitcoinInfo.balances[message.author.id].balance === 0) return message.reply("you don't have any Mitcoin!");
-    if (!sellAmount || sellAmount <= 0) return message.channel.send(`Specify a valid number to sell`);
+    if (!sellAmount || sellAmount <= 0 || sellAmount === "NaN") return message.channel.send(`Specify a valid number to sell`);
     if (sellAmount > 3) return message.channel.send("You can not sell more than 3 Mitcoin");
     
     // If the user has less Mitcoin than they say to pay

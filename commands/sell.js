@@ -43,7 +43,7 @@ module.exports.run = async (bot, message, args) => {
     logChannel.send(JSON.stringify(mitcoinInfo));
 
     // Send the confirmation message
-    message.channel.send(`${message.author} has sold ${sellAmount.toFixed(2)} <:MTC:449007845954945026> and recieved ${(sellAmount * mitcoinInfo.value).toFixed(2)} :dollar:`);
+    message.channel.send(`${message.author} has sold ${Math.round(sellAmount * 100) / 100} <:MTC:449007845954945026> and recieved ${(sellAmount * mitcoinInfo.value).toFixed(2)} :dollar:`);
 }
 
 module.exports.help = {

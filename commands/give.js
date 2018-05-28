@@ -18,7 +18,7 @@ module.exports.run = async (bot, message, args) => {
     // If no amount is specified
     if (!args[1]) return message.channel.send("Specify an amount to pay");
 
-    let payAmount = parseFloat(args[1]).toFixed(2);
+    let payAmount = parseFloat(args[1]).toFixed(3);
     if (args[1].toLowerCase() === "all") payAmount = mitcoinInfo.balances[message.author.id].balance;
 
     if (mitcoinInfo.balances[message.author.id].balance === 0) return message.reply("you don't have any Mitcoin!");

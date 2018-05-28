@@ -10,7 +10,7 @@ module.exports.run = async (bot, message, args) => {
     // File for Mitcoin value and all user balances
     let mitcoinInfo = require("../mitcoininfo.json");
     
-    let sellAmount = parseFloat(args[0]).toFixed(2);
+    let sellAmount = parseFloat(args[0]).toFixed(3);
     if (args[0].toLowerCase() === "all") sellAmount = mitcoinInfo.balances[message.author.id].balance;
 
     if (mitcoinInfo.balances[message.author.id].balance === 0) return message.reply("you don't have any Mitcoin!");
@@ -43,7 +43,7 @@ module.exports.run = async (bot, message, args) => {
     logChannel.send(JSON.stringify(mitcoinInfo));
 
     // Send the confirmation message
-    message.channel.send(`${message.author} has sold ${Math.round(sellAmount * 100) / 100} <:MTC:449007845954945026> and recieved ${(sellAmount * mitcoinInfo.value).toFixed(2)} :dollar:`);
+    message.channel.send(`${message.author} has sold ${Math.round(sellAmount * 1000) / 1000} <:MTC:449007845954945026> and recieved ${(sellAmount * mitcoinInfo.value).toFixed(2)} :dollar:`);
 }
 
 module.exports.help = {

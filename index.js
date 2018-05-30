@@ -48,18 +48,29 @@ const commands = {
     name: "balance",
     desc: "Check your balance in Mitcoin",
     run: (message, args) => {
-      if (!mitcoinInfo.balances) return message.reply(`you don't have any Mitcoin!\nYou can invest up to 1 :dollar:`);
-      
+      let balUser = message.author;
+      if (executives.includes(message.author.id)) {
+        balUser = message.mentions.members.first() || bot.users.find("id", args[0] || message.author.id) || message.author;
+      }
+      balUser = balUser.user || balUser;
+      if (balUser.bot) balUser = message.author;
+
+      // If the user doesn't have a Mitcoin balance yet, set it up
+        if (!mitcoinInfo.balances[balUser.id]) mitcoinInfo.balances[balUser.id] = {
+          balance: 0,
+          money: 1
+        }
+
       // The user's Mitcoin balance
-      let MTCBal = mitcoinInfo.balances[message.author.id].balance;
+      let MTCBal = mitcoinInfo.balances[balUser.id].balance;
   
       // Embed to show the user's balance information
       let balEmbed = new Discord.RichEmbed()
       .setColor("ff9900")
-      .setAuthor(message.author.username, message.author.displayAvatarURL)
+      .setAuthor(balUser.username, balUser.displayAvatarURL)
       .addField("Mitcoin", `${MTCBal.toFixed(3)} <:MTC:449007845954945026>`, true)
       .addField("Equivalent value", `${(mitcoinInfo.value * MTCBal).toFixed(2)} :dollar:`, true)
-      .addField("Money", `${mitcoinInfo.balances[message.author.id].money.toFixed(2)} :dollar:`)
+      .addField("Money", `${mitcoinInfo.balances[balUser.id].money.toFixed(2)} :dollar:`)
   
       message.channel.send(balEmbed);
     }

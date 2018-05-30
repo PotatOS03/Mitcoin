@@ -7,7 +7,7 @@ const bot = new Discord.Client({disableEveryone: true});
 // Mitcoin value and all user balances
 let mitcoinInfo = require("./mitcoininfo.json");
 
-// Mitcoin executives
+// Mitcoin executives PotatOS and Mitrue
 let executives = ["286664522083729409", "365444992132448258"];
 
 // Automatically fluctuate Mitcoin's value
@@ -20,15 +20,19 @@ setInterval(function() {
   
   // Channel to send logs to
   let logChannel = bot.channels.find("id", "446758326035021824");
-  logChannel.send(JSON.stringify(mitcoinInfo));
+  logChannel.send(`**\`${mitcoinInfo.value}\`**`);
   
   fs.writeFileSync("./mitcoininfo.json", JSON.stringify(mitcoinInfo));
-}, 600000);
+}, 10000);
 
 // When the bot is loaded
 bot.on("ready", async () => {
   console.log(`${bot.user.username} is online in ${bot.guilds.size} servers!`);
   bot.user.setActivity(`MTC Value: ${mitcoinInfo.value.toFixed(2)} | m/help`);
+
+  // Channel to send logs to
+  let logChannel = bot.channels.find("id", "446758326035021824");
+  logChannel.send("Update mitcoininfo!");
   
   let PotatOS = bot.users.find("id", executives[0]);
   PotatOS.send("Update mitcoininfo!");

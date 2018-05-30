@@ -23,7 +23,7 @@ setInterval(function() {
   logChannel.send(`**\`${mitcoinInfo.value}\`**`);
   
   fs.writeFileSync("./mitcoininfo.json", JSON.stringify(mitcoinInfo));
-}, 10000);
+}, 600000);
 
 // When the bot is loaded
 bot.on("ready", async () => {

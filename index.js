@@ -2,6 +2,7 @@
 const botconfig = require("./botconfig.json");
 const Discord = require("discord.js");
 const fs = require("fs");
+const ms = require("ms");
 const bot = new Discord.Client({disableEveryone: true});
 
 // Mitcoin value and all user balances
@@ -10,20 +11,24 @@ let mitcoinInfo = require("./mitcoininfo.json");
 // Mitcoin executives PotatOS and Mitrue
 let executives = ["286664522083729409", "365444992132448258"];
 
+// How many milliseconds it takes for Mitcoin's value to automatically fluctuate
+let fluctuationTime = ms("10m");
+
 // Automatically fluctuate Mitcoin's value
 setInterval(function() {
   let fluctuation = Math.round(Math.random() * 10 - 5);
   
   // Change Mitcoin's value
   mitcoinInfo.value *= (fluctuation + 100) / 100;
+  mitcoinInfo.history.push(mitcoinInfo.value);
   bot.user.setActivity(`MTC Value: ${mitcoinInfo.value.toFixed(2)} | m/help`);
   
   // Channel to send logs to
   let logChannel = bot.channels.find("id", "446758326035021824");
-  logChannel.send(`**\`${mitcoinInfo.value}\`**`);
+  logChannel.send(JSON.stringify(mitcoinInfo.history));
   
   fs.writeFileSync("./mitcoininfo.json", JSON.stringify(mitcoinInfo));
-}, 600000);
+}, fluctuationTime);
 
 // When the bot is loaded
 bot.on("ready", async () => {
@@ -56,11 +61,11 @@ const commands = {
       if (balUser.bot) balUser = message.author;
 
       // If the user doesn't have a Mitcoin balance yet, set it up
-        if (!mitcoinInfo.balances[balUser.id]) mitcoinInfo.balances[balUser.id] = {
-          balance: 0,
-          money: 1
-        }
-
+      if (!mitcoinInfo.balances[balUser.id]) mitcoinInfo.balances[balUser.id] = {
+        balance: 0,
+        money: 1
+      }
+      console.log(mitcoinInfo.balances);
       // The user's Mitcoin balance
       let MTCBal = mitcoinInfo.balances[balUser.id].balance;
   
@@ -73,6 +78,34 @@ const commands = {
       .addField("Money", `${mitcoinInfo.balances[balUser.id].money.toFixed(2)} :dollar:`)
   
       message.channel.send(balEmbed);
+    }
+  },
+  change: {
+    name: "change",
+    desc: "View how much Mitcoin's value has changed over time",
+    run: (message, args) => {
+      if (!args[0]) return message.channel.send("Specify a time");
+      let time = args.join(" ");
+      if (time.toLowerCase() === "all") time = mitcoinInfo.history.length * fluctuationTime;
+      if (!ms(time)) return message.channel.send("Specify a valid time");
+
+      if (mitcoinInfo.history.length < ms(time) / fluctuationTime) time = mitcoinInfo.history.length * fluctuationTime;
+      if (time / time !== 1) time = ms(time);
+      time = Math.floor(time / fluctuationTime) * fluctuationTime;
+
+      let timeString = "";
+      if (time >= 86400000) timeString += `${Math.floor(time / 86400000)}d, `;
+      if (time >= 3600000) timeString += `${Math.floor((time % 86400000) / 3600000)}h, `;
+      if (time >= 60000) timeString += `${Math.floor((time % 3600000) / 60000)}m, `;
+      timeString += `${(time % 60000) / 1000}s`;
+      
+
+      let changeEmbed = new Discord.RichEmbed()
+      .setColor("#ff9900")
+      .setTitle(`Mitcoin change over the past ${timeString}`)
+      .addField(`${time / fluctuationTime} fluctuations`, `${(mitcoinInfo.value / mitcoinInfo.history[mitcoinInfo.history.length - time / fluctuationTime]).toFixed(3)}%`)
+
+      message.channel.send(changeEmbed);
     }
   },
   give: {
@@ -168,14 +201,20 @@ const commands = {
   help: {
     name: "help",
     run: (message, args) => {
+      let executivesText = "";
+      for (let i = 0; i < executives.length - 1; i++) {
+        executivesText += `<@${executives[i]}> (${bot.users.find("id", executives[i]).username}), `;
+      }
+      executivesText += `<@${executives[executives.length - 1]}> (${bot.users.find("id", executives[executives.length - 1]).username})`;
+
       let helpEmbed = new Discord.RichEmbed()
       .setDescription("List of commands")
       .setColor("ff9900")
-      .addField("Prefix", "m/")
+      .addField("Prefix", botconfig.prefix)
       for (let i in commands) {
         if (commands[i].desc) helpEmbed.addField(commands[i].name, commands[i].desc)
       }
-      helpEmbed.addField("How to invest", "Simply type 💵 in the chat up to 3 times to invest in Mitcoin")
+      helpEmbed.addField("How to invest", `Simply type 💵 in the chat up to 3 times to invest in Mitcoin\n\nTips to Mitcoin executive${(executives.length > 1) ? "s" : ""} ${executivesText} are greatly appreciated`)
       
       message.channel.send(helpEmbed);
     }
@@ -260,6 +299,7 @@ const commands = {
       // Reset the value
       if (args[0] === "value" || args[0] === "all") {
           mitcoinInfo.value = 1;
+          mitcoinInfo.history = [];
       }
       // Reset the balances
       if (args[0] === "balances" || args[0] === "all") {
@@ -357,7 +397,8 @@ bot.on("message", async message => {
   // Set up what the Mitcoin file has
   mitcoinInfo = {
     value: mitcoinInfo.value || 1,
-    balances: mitcoinInfo.balances || {}
+    balances: mitcoinInfo.balances || {},
+    history: mitcoinInfo.history || []
   }
 
   // If the user doesn't have a Mitcoin balance yet, set it up

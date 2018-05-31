@@ -338,6 +338,9 @@ const commands = {
 // How much each user has invested for the day
 let investments = {};
 
+// How much each user has paid another user for the day
+let payments = {};
+
 // How much each user has sold for the day
 let sales = {};
 

@@ -65,7 +65,7 @@ const commands = {
         balance: 0,
         money: 1
       }
-      console.log(mitcoinInfo.balances);
+
       // The user's Mitcoin balance
       let MTCBal = mitcoinInfo.balances[balUser.id].balance;
   

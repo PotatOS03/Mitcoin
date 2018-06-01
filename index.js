@@ -154,7 +154,8 @@ const commands = {
   
       // Actually calculate the payment
       mitcoinInfo.balances[message.author.id].balance -= payAmount;
-      mitcoinInfo.balances[payUser.id].balance += payAmount;
+      mitcoinInfo.balances[payUser.id].balance += parseFloat(payAmount);
+      console.log(payAmount.toString())
   
       // Send the confirmation message
       message.channel.send(`${message.author} has given ${payAmount} <:MTC:449007845954945026> to ${payUser}`);

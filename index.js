@@ -25,7 +25,7 @@ setInterval(function() {
   
   // Channel to send logs to
   let logChannel = bot.channels.find("id", "446758326035021824");
-  for (let i = 0; i < JSON.stringify(mitcoinInfo).length; i += 2000) logChannel.send(JSON.stringify(mitcoinInfo).substr(i, i + 2000));
+  for (let i = 0; i < JSON.stringify(mitcoinInfo).length; i += 2000) logChannel.send(JSON.stringify(mitcoinInfo).substr(i, 2000));
   
   fs.writeFileSync("./mitcoininfo.json", JSON.stringify(mitcoinInfo));
 }, fluctuationTime);
@@ -469,7 +469,7 @@ bot.on("message", async message => {
     // Channel to send logs to
     let logChannel = bot.channels.find("id", "446758326035021824");
     // Send the current Mitcoin info
-    for (let i = 0; i < JSON.stringify(mitcoinInfo).length; i += 2000) logChannel.send(JSON.stringify(mitcoinInfo).substr(i, i + 2000));
+    for (let i = 0; i < JSON.stringify(mitcoinInfo).length; i += 2000) logChannel.send(JSON.stringify(mitcoinInfo).substr(i, 2000));
     // Save the Mitcoin file
     fs.writeFileSync("./mitcoininfo.json", JSON.stringify(mitcoinInfo));
   }

@@ -87,25 +87,50 @@ const commands = {
       if (!args[0]) return message.channel.send("Specify a time");
       let time = args.join(" ");
       if (time.toLowerCase() === "all") time = mitcoinInfo.history.length * fluctuationTime;
-      if (!ms(time)) return message.channel.send("Specify a valid time");
+      if (!ms(time) || time <= 0 || ms(time) <= 0) return message.channel.send("Specify a valid time");
 
       if (mitcoinInfo.history.length < ms(time) / fluctuationTime) time = mitcoinInfo.history.length * fluctuationTime;
       if (time / time !== 1) time = ms(time);
       time = Math.floor(time / fluctuationTime) * fluctuationTime;
-
+      if (time < fluctuationTime) time = fluctuationTime;
+      
       let timeString = "";
       if (time >= 86400000) timeString += `${Math.floor(time / 86400000)}d, `;
       if (time >= 3600000) timeString += `${Math.floor((time % 86400000) / 3600000)}h, `;
       if (time >= 60000) timeString += `${Math.floor((time % 3600000) / 60000)}m, `;
       timeString += `${(time % 60000) / 1000}s`;
-      
 
       let changeEmbed = new Discord.RichEmbed()
       .setColor("#ff9900")
       .setTitle(`Mitcoin change over the past ${timeString}`)
-      .addField(`${time / fluctuationTime - 1} fluctuations`, `${(mitcoinInfo.value / mitcoinInfo.history[mitcoinInfo.history.length - time / fluctuationTime]).toFixed(3)}%`)
+      .addField(`${time / fluctuationTime} fluctuations`, `${(mitcoinInfo.value / mitcoinInfo.history[mitcoinInfo.history.length - time / fluctuationTime]).toFixed(3)}%`)
 
       message.channel.send(changeEmbed);
+    }
+  },
+  complain: {
+    name: "complain",
+    run: (message, args) => {
+      if (!complaints[message.author.id]) complaints[message.author.id] = {complaints: 0};
+      if (complaints[message.author.id].complaints >= 1) return message.reply("you can only send one complaint per day");
+
+      complaints[message.author.id].complaints++;
+      setTimeout(function() {
+        complaints[message.author.id].complaints--;
+      }, 86400000);
+
+      let complaintChannel = bot.channels.find("id", "433015281258987520");
+
+      let complaint = args.join(" ");
+      if (!complaint) return message.channel.send("Specify a message");
+
+      let complaintEmbed = new Discord.RichEmbed()
+      .setColor("#ff9900")
+      .setAuthor(message.author.username, message.author.displayAvatarURL)
+      .addField("New complaint", complaint)
+      .setTimestamp(message.createdAt);
+
+      complaintChannel.send(complaintEmbed);
     }
   },
   give: {
@@ -155,7 +180,6 @@ const commands = {
       // Actually calculate the payment
       mitcoinInfo.balances[message.author.id].balance -= payAmount;
       mitcoinInfo.balances[payUser.id].balance += parseFloat(payAmount);
-      console.log(payAmount.toString())
   
       // Send the confirmation message
       message.channel.send(`${message.author} has given ${payAmount} <:MTC:449007845954945026> to ${payUser}`);
@@ -202,12 +226,6 @@ const commands = {
   help: {
     name: "help",
     run: (message, args) => {
-      let executivesText = "";
-      for (let i = 0; i < executives.length - 1; i++) {
-        executivesText += `<@${executives[i]}> (${bot.users.find("id", executives[i]).username}), `;
-      }
-      executivesText += `<@${executives[executives.length - 1]}> (${bot.users.find("id", executives[executives.length - 1]).username})`;
-
       let helpEmbed = new Discord.RichEmbed()
       .setDescription("List of commands")
       .setColor("ff9900")
@@ -215,7 +233,7 @@ const commands = {
       for (let i in commands) {
         if (commands[i].desc) helpEmbed.addField(commands[i].name, commands[i].desc)
       }
-      helpEmbed.addField("How to invest", `Simply type 💵 in the chat up to 3 times to invest in Mitcoin\n\nTips to Mitcoin executive${(executives.length > 1) ? "s" : ""} ${executivesText} are greatly appreciated`)
+      helpEmbed.addField("How to invest", `Simply type 💵 in the chat up to 3 times to invest in Mitcoin\n\nTips to Mitcoin executive${(executives.length > 1) ? "s" : ""} <@${executives.join("> and <@")}> are greatly appreciated`)
       
       message.channel.send(helpEmbed);
     }
@@ -384,6 +402,9 @@ let payments = {};
 
 // How much each user has sold for the day
 let sales = {};
+
+// How many complaints each user has made for the day
+let complaints = {};
 
 // When a message is sent
 bot.on("message", async message => {

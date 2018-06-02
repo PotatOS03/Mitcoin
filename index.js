@@ -119,7 +119,7 @@ const commands = {
         complaints[message.author.id].complaints--;
       }, 86400000);
 
-      let complaintChannel = bot.channels.find("id", "433015281258987520");
+      let complaintChannel = bot.channels.find("id", "452269954167865345");
 
       let complaint = args.join(" ");
       if (!complaint) return message.channel.send("Specify a message");

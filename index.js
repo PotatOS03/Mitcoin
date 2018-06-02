@@ -11,6 +11,9 @@ let mitcoinInfo = require("./mitcoininfo.json");
 // Mitcoin executives PotatOS and Mitrue
 let executives = ["286664522083729409", "365444992132448258"];
 
+// MTC logo emoji
+let MTC = "<:MTC:449007845954945026>";
+
 // How many milliseconds it takes for Mitcoin's value to automatically fluctuate
 let fluctuationTime = ms("10m");
 
@@ -73,7 +76,7 @@ const commands = {
       let balEmbed = new Discord.RichEmbed()
       .setColor("ff9900")
       .setAuthor(balUser.username, balUser.displayAvatarURL)
-      .addField("Mitcoin", `${MTCBal.toFixed(3)} <:MTC:449007845954945026>`, true)
+      .addField("Mitcoin", `${MTCBal.toFixed(3)} ${MTC}`, true)
       .addField("Equivalent value", `${(mitcoinInfo.value * MTCBal).toFixed(2)} :dollar:`, true)
       .addField("Money", `${mitcoinInfo.balances[balUser.id].money.toFixed(2)} :dollar:`)
   
@@ -85,7 +88,7 @@ const commands = {
     desc: "View how much Mitcoin's value has changed over time",
     run: (message, args) => {
       if (!args[0]) return message.channel.send("Specify a time");
-      let time = args.join(" ");
+      let time = args.join("");
       if (time.toLowerCase() === "all") time = mitcoinInfo.history.length * fluctuationTime;
       if (!ms(time) || time <= 0 || ms(time) <= 0) return message.channel.send("Specify a valid time");
 
@@ -119,7 +122,7 @@ const commands = {
         complaints[message.author.id].complaints--;
       }, 86400000);
 
-      let complaintChannel = bot.channels.find("id", "452269954167865345");
+      let complaintChannel = bot.channels.find("id", "433015281258987520");
 
       let complaint = args.join(" ");
       if (!complaint) return message.channel.send("Specify a message");
@@ -182,7 +185,7 @@ const commands = {
       mitcoinInfo.balances[payUser.id].balance += parseFloat(payAmount);
   
       // Send the confirmation message
-      message.channel.send(`${message.author} has given ${payAmount} <:MTC:449007845954945026> to ${payUser}`);
+      message.channel.send(`${message.author} has given ${payAmount} ${MTC} to ${payUser}`);
     }
   },
   giveaway: {
@@ -190,37 +193,62 @@ const commands = {
     run: (message, args) => {
       if (!executives.includes(message.author.id)) return;
 
-      if (!args[0]) return message.channel.send("Specify a range of values");
-      let min = parseFloat(args[0]);
-      let max = parseFloat(args[1]) || min;
-      if (!min || !max) return message.channel.send("Specify a valid range");
+      if (!args[0]) return message.channel.send("Specify a time");
+      time = args[0];
+      if (!ms(time) || time <= 0 || ms(time) <= 0) return message.channel.send("Specify a valid time");
 
-      let botCount = 0;
-      message.guild.members.forEach(m => {
-          if (m.user.bot) botCount++;
-      })
-      let winner = Math.floor(Math.random() * (message.guild.members.size - botCount));
+      if (time / time === 1) time = ms(time);
+
+      if (!args[1]) return message.channel.send("Specify a range of values");
+      let min = parseFloat(args[1]);
+      let max = parseFloat(args[2]) || min;
+      if ((!min && min !== 0) || !max) return message.channel.send("Specify a valid range");
       
-      let winMember = 0;
-      message.guild.members.forEach(m => {
-          if (!m.user.bot) {
-              if (winner === 0) winMember = m;
-          }
-          winner--;
-      })
-  
-      if (winMember === 0) return message.channel.send(":confused: something went wrong... try again, please!");
-  
-      if (!mitcoinInfo.balances[winMember.id]) mitcoinInfo.balances[winMember.id] = {
-          balance: 0,
-          money: 1
-      }
-  
       let winAmount = Math.random().toFixed(2) * (max - min) + min;
-  
-      mitcoinInfo.balances[winMember.id].balance += winAmount;
-  
-      message.channel.send(`Congratulations to ${winMember.toString()}! You have just earned a free ${winAmount} <:MTC:449007845954945026>, which is about ${(winAmount * mitcoinInfo.value).toFixed(2)} :dollar:`);
+
+      let giveEmbed = new Discord.RichEmbed()
+      .setColor("#ff9900")
+      .setTitle(`New ${MTC} Giveaway!`)
+      .addField(`How much MTC is available?`, winAmount)
+      .addField("To enter the giveaway", `React to this message with the ${MTC} emoji`)
+      .setTimestamp(message.createdAt)
+      .setFooter(`This giveaway will end in ${time}`)
+      
+      message.delete();
+      message.channel.send(giveEmbed).then(msg => {
+        msg.react(MTC.split(/:|>/)[2]);
+        setTimeout(function() {
+          msg.delete();
+
+          let reacters = msg.reactions.get(MTC.split(/<:|>/)[1]);
+
+          let winner = Math.floor(Math.random() * reacters.count);
+
+          let winUser = 0;
+          reacters.users.forEach(r => {
+            if (!r.bot && winner <= 0 && winUser === 0) winUser = r;
+            winner--;
+          })
+          
+          if (winUser === 0) return message.channel.send("**No one reacted to the giveaway!**\n__Make sure to react before the time runs out.__");
+
+          if (!mitcoinInfo.balances[winUser.id]) mitcoinInfo.balances[winUser.id] = {
+            balance: 0,
+            money: 1
+          }
+      
+          mitcoinInfo.balances[winUser.id].balance += winAmount;
+
+          let winEmbed = new Discord.RichEmbed()
+          .setColor("#ff9900")
+          .setTitle(`${MTC} Giveaway ended!`)
+          .addField("Winner", `<@${winUser.id}>`)
+          .addField("Amount won", `${winAmount} ${MTC}`)
+          .setTimestamp(msg.createdAt)
+
+          message.channel.send(winEmbed);
+        }, ms(time))
+      })
     }
   },
   help: {
@@ -279,11 +307,11 @@ const commands = {
       .setColor("ff9900")
       .setDescription("Mitcoin Leaderboard")
       .setThumbnail(bot.user.displayAvatarURL)
-      .addField("First Place", `${usernames.usernames[0]} | ${leaderboard[0].balance.toFixed(2)} <:MTC:449007845954945026>`)
-      if (leaderboard[1] && leaderboard[1].balance > 0) lEmbed.addField("Second Place", `${usernames.usernames[1]} | ${leaderboard[1].balance.toFixed(2)} <:MTC:449007845954945026>`)
-      if (leaderboard[2] && leaderboard[2].balance > 0) lEmbed.addField("Third Place", `${usernames.usernames[2]} | ${leaderboard[2].balance.toFixed(2)} <:MTC:449007845954945026>`)
-      if (leaderboard[3] && leaderboard[3].balance > 0) lEmbed.addField("Fourth Place", `${usernames.usernames[3]} | ${leaderboard[3].balance.toFixed(2)} <:MTC:449007845954945026>`)
-      if (leaderboard[4] && leaderboard[4].balance > 0) lEmbed.addField("Fifth Place", `${usernames.usernames[4]} | ${leaderboard[4].balance.toFixed(2)} <:MTC:449007845954945026>`)
+      .addField("First Place", `${usernames.usernames[0]} | ${leaderboard[0].balance.toFixed(2)} ${MTC}`)
+      if (leaderboard[1] && leaderboard[1].balance > 0) lEmbed.addField("Second Place", `${usernames.usernames[1]} | ${leaderboard[1].balance.toFixed(2)} ${MTC}`)
+      if (leaderboard[2] && leaderboard[2].balance > 0) lEmbed.addField("Third Place", `${usernames.usernames[2]} | ${leaderboard[2].balance.toFixed(2)} ${MTC}`)
+      if (leaderboard[3] && leaderboard[3].balance > 0) lEmbed.addField("Fourth Place", `${usernames.usernames[3]} | ${leaderboard[3].balance.toFixed(2)} ${MTC}`)
+      if (leaderboard[4] && leaderboard[4].balance > 0) lEmbed.addField("Fifth Place", `${usernames.usernames[4]} | ${leaderboard[4].balance.toFixed(2)} ${MTC}`)
       if (userPlace > 5 && leaderboard[userPlace - 1].balance > 0) lEmbed.addField("Your Place", userPlace)
       lEmbed.setTimestamp(message.createdAt);
   
@@ -368,7 +396,7 @@ const commands = {
       mitcoinInfo.balances[message.author.id].money += sellAmount * mitcoinInfo.value;
   
       // Send the confirmation message
-      message.channel.send(`${message.author} has sold ${Math.round(sellAmount * 1000) / 1000} <:MTC:449007845954945026> and recieved ${(sellAmount * mitcoinInfo.value).toFixed(2)} :dollar:`);
+      message.channel.send(`${message.author} has sold ${Math.round(sellAmount * 1000) / 1000} ${MTC} and recieved ${(sellAmount * mitcoinInfo.value).toFixed(2)} :dollar:`);
     }
   },
   uptime: {
@@ -389,7 +417,7 @@ const commands = {
     desc: "See Mitcoin's current value",
     run: (message, args) => {
     // Send the message saying Mitcoin's value
-    message.channel.send(`1 <:MTC:449007845954945026> is currently worth about ${mitcoinInfo.value.toFixed(3)} :dollar:`);
+    message.channel.send(`1 ${MTC} is currently worth about ${mitcoinInfo.value.toFixed(3)} :dollar:`);
     }
   }
 }
@@ -466,8 +494,8 @@ bot.on("message", async message => {
           mitcoinInfo.balances[message.author.id].money -= investAmount;
           
           // Send the message
-          if (mitcoinInfo.balances[message.author.id].money >= 1) message.channel.send(`${message.author} has earned ${(investAmount / mitcoinInfo.value).toFixed(3)} <:MTC:449007845954945026> after investing ${investAmount} :dollar: and has ${(mitcoinInfo.balances[message.author.id].money).toFixed(2)} :dollar: left to invest`);
-          else message.channel.send(`${message.author} has earned ${(investAmount / mitcoinInfo.value).toFixed(3)} <:MTC:449007845954945026> after investing ${investAmount} :dollar: and cannot invest any more :dollar:`);
+          if (mitcoinInfo.balances[message.author.id].money >= 1) message.channel.send(`${message.author} has earned ${(investAmount / mitcoinInfo.value).toFixed(3)} ${MTC} after investing ${investAmount} :dollar: and has ${(mitcoinInfo.balances[message.author.id].money).toFixed(2)} :dollar: left to invest`);
+          else message.channel.send(`${message.author} has earned ${(investAmount / mitcoinInfo.value).toFixed(3)} ${MTC} after investing ${investAmount} :dollar: and cannot invest any more :dollar:`);
         }
       }
     }

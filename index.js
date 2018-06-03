@@ -261,9 +261,42 @@ const commands = {
       for (let i in commands) {
         if (commands[i].desc) helpEmbed.addField(commands[i].name, commands[i].desc)
       }
-      helpEmbed.addField("How to invest", `Simply type 💵 in the chat up to 3 times to invest in Mitcoin\n\nTips to Mitcoin executive${(executives.length > 1) ? "s" : ""} <@${executives.join("> and <@")}> are greatly appreciated`)
-      
+
       message.channel.send(helpEmbed);
+    }
+  },
+  invest: {
+    name: "invest",
+    desc: "Invest in a certain amount of Mitcoin",
+    run: (message, args) => {
+      if (!args[0]) return message.channel.send("Specify an amount to invest");
+
+      let investAmount = parseFloat(args[0]);
+      if (args[0].toLowerCase() === "all") investAmount = mitcoinInfo.balances[message.author.id].money;
+
+      if (!investAmount || investAmount < 0.01) return message.channel.send("Specify a valid amount to invest");
+      if (investAmount > 10) return message.reply("you can't invest in that much MTC!");
+      
+      if (investAmount > mitcoinInfo.balances[message.author.id].money) return message.reply("you don't have enough :dollar:");
+
+      if (!investments[message.author.id]) investments[message.author.id] = {invested: 0};
+      if (investments[message.author.id].invested + investAmount > 10) return message.reply(`you can only invest 10 :dollar: per day`);
+
+      setTimeout(function() {
+        investments[message.author.id].invested -= investAmount;
+        if (investments[message.author.id].invested + investAmount === 10) message.reply("you may invest again!");
+      }, 86400000);
+      
+      // Add the invested amount to the user's daily investments
+      investments[message.author.id].invested += investAmount;
+      
+      // Add the invested amount to the user's balance
+      mitcoinInfo.balances[message.author.id].balance += investAmount / mitcoinInfo.value;
+      mitcoinInfo.balances[message.author.id].money -= investAmount;
+      
+      // Send the message
+      if (mitcoinInfo.balances[message.author.id].money > 0) return message.channel.send(`${message.author} has earned ${(investAmount / mitcoinInfo.value).toFixed(3)} ${MTC} after investing ${investAmount.toFixed(2)} :dollar: and has ${(mitcoinInfo.balances[message.author.id].money).toFixed(2)} :dollar: left to invest`);
+      message.channel.send(`${message.author} has earned ${(investAmount / mitcoinInfo.value).toFixed(3)} ${MTC} after investing ${investAmount.toFixed(2)} :dollar: and cannot invest any more :dollar:`);
     }
   },
   leaderboard: {
@@ -459,47 +492,12 @@ bot.on("message", async message => {
   
   // Set up the user's daily investments
   if (!investments[message.author.id]) investments[message.author.id] = {invested: 0};
-  
-  // The maximum amount that can be invested daily
-  let dailyInvest = 10;
 
   // Bot commands prefix
   let prefix = botconfig.prefix;
   
   // Ignore the message if it doesn't start with the prefix
-  if (!message.content.startsWith(prefix)) {
-    // If the user invests using the dollar emoji
-    if (message.content.split(/💵| /).length - 1 === (message.content.length + message.content.split(" ").length - 1) / 2 && message.content.length > 0) {
-      // Calculate how much was invested
-      let investAmount = message.content.split("💵").length - 1;
-      
-      if (investAmount > 3) message.reply("you can only invest in 1, 2, or 3 :dollar: at a time");
-      else if (investAmount > mitcoinInfo.balances[message.author.id].money) message.reply("you don't have enough :dollar:");
-      else {      
-        
-        // If the user has already reached their daily investment limit
-        if (investments[message.author.id].invested + investAmount > dailyInvest) message.reply(`you can only invest ${dailyInvest} :dollar: per day`)
-        else {
-          // Wait a day after the user invested to let them invest again
-          setTimeout(function() {
-            investments[message.author.id].invested -= investAmount;
-            if (investments[message.author.id].invested + investAmount === dailyInvest) message.reply("you may invest again!");
-          }, 86400000);
-          
-          // Add the invested amount to the user's daily investments
-          investments[message.author.id].invested += investAmount;
-          
-          // Add the invested amount to the user's balance
-          mitcoinInfo.balances[message.author.id].balance += investAmount / mitcoinInfo.value;
-          mitcoinInfo.balances[message.author.id].money -= investAmount;
-          
-          // Send the message
-          if (mitcoinInfo.balances[message.author.id].money >= 1) message.channel.send(`${message.author} has earned ${(investAmount / mitcoinInfo.value).toFixed(3)} ${MTC} after investing ${investAmount} :dollar: and has ${(mitcoinInfo.balances[message.author.id].money).toFixed(2)} :dollar: left to invest`);
-          else message.channel.send(`${message.author} has earned ${(investAmount / mitcoinInfo.value).toFixed(3)} ${MTC} after investing ${investAmount} :dollar: and cannot invest any more :dollar:`);
-        }
-      }
-    }
-  }
+  if (!message.content.startsWith(prefix)) return;
   
   // Get different parts of the message
   let messageArray = message.content.split(" ");
@@ -523,7 +521,7 @@ bot.on("message", async message => {
     fs.writeFileSync("./mitcoininfo.json", JSON.stringify(mitcoinInfo));
   }
   
-  if (message.content.startsWith(`${prefix}eval`)) {
+  if (cmd.slice(prefix.length) === "eval") {
     if (message.author.id !== executives[0]) return;
     let code = args.slice(0).join(" ");
     try {

@@ -12,7 +12,7 @@ let mitcoinInfo = require("./mitcoininfo.json");
 let executives = ["286664522083729409", "365444992132448258"];
 
 // MTC logo emoji
-let MTC = "<:MTC:449007845954945026>";
+let MTC = "<:MTC:452553160557461544>";
 
 // How many milliseconds it takes for Mitcoin's value to automatically fluctuate
 let fluctuationTime = ms("10m");
@@ -23,7 +23,7 @@ setInterval(function() {
   
   // Change Mitcoin's value
   mitcoinInfo.value *= (fluctuation + 100) / 100;
-  mitcoinInfo.history.push(mitcoinInfo.value);
+  mitcoinInfo.history.push(parseFloat(mitcoinInfo.value.toFixed(3)));
   bot.user.setActivity(`MTC Value: ${mitcoinInfo.value.toFixed(2)} | m/help`);
   
   // Channel to send logs to

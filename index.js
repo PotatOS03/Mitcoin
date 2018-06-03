@@ -106,7 +106,7 @@ const commands = {
       let changeEmbed = new Discord.RichEmbed()
       .setColor("#ff9900")
       .setTitle(`Mitcoin change over the past ${timeString}`)
-      .addField(`${time / fluctuationTime} fluctuations`, `${(mitcoinInfo.value / mitcoinInfo.history[mitcoinInfo.history.length - time / fluctuationTime]).toFixed(3)}%`)
+      .addField(`${time / fluctuationTime} fluctuations`, `${(mitcoinInfo.value / mitcoinInfo.history[mitcoinInfo.history.length - time / fluctuationTime]).toFixed(2)}%`)
 
       message.channel.send(changeEmbed);
     }

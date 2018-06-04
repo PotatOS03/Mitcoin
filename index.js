@@ -151,14 +151,16 @@ const commands = {
       let payUser = message.mentions.members.first();
       if (!payUser || payUser.user.bot) return message.channel.send("Specify a valid user");
       if (payUser === message.member) return message.channel.send("You can't pay yourself!");
-  
+      
       // If no amount is specified
       if (!args[1]) return message.channel.send("Specify an amount to pay");
+
+      if (args[0] !== `<@${payUser.id}>`) return message.channel.send("Specify the member, then the number");
   
       let payAmount = parseFloat(args[1]).toFixed(3);
       if (args[1].toLowerCase() === "all") payAmount = mitcoinInfo.balances[message.author.id].balance;
   
-      if (!payAmount || payAmount <= 0) return message.channel.send(`Specify a valid number to pay`);
+      if (!payAmount || payAmount === "NaN" || payAmount <= 0) return message.channel.send(`Specify a valid number to pay`);
       if (payAmount > 3) return message.channel.send("You can not pay more than 3 Mitcoin");
       
       // If the user has less Mitcoin than they say to pay
@@ -249,6 +251,17 @@ const commands = {
 
           message.channel.send(winEmbed);
         }, ms(time))
+      })
+    }
+  },
+  graph: {
+    name: "graph",
+    desc: "View a graph of Mitcoin's value over time",
+    run: (message, args) => {
+      Jimp.read("graph.png", (err, image) => {
+        if (err) return console.log(err);
+        image.gaussian(1)
+        .write("newgraph.png");
       })
     }
   },

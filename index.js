@@ -254,17 +254,6 @@ const commands = {
       })
     }
   },
-  graph: {
-    name: "graph",
-    desc: "View a graph of Mitcoin's value over time",
-    run: (message, args) => {
-      Jimp.read("graph.png", (err, image) => {
-        if (err) return console.log(err);
-        image.gaussian(1)
-        .write("newgraph.png");
-      })
-    }
-  },
   help: {
     name: "help",
     run: (message, args) => {

@@ -138,7 +138,7 @@ const commands = {
   },
   give: {
     name: "give",
-    desc: "Give a user an amount of Mitcoin",
+    desc: `Give a user an amount of Mitcoin\nTips to Mitcoin executives <@${executives.join("> and <@")}> are greatly appreciated`,
     run: (message, args) => {
       // If the user doesn't have any Mitcoin to pay
       if (mitcoinInfo.balances[message.author.id].balance === 0) return message.reply("you don't have any Mitcoin!");

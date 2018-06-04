@@ -133,6 +133,7 @@ const commands = {
       .addField("New complaint", complaint)
       .setTimestamp(message.createdAt);
 
+      message.channel.send("✅ Your complaint has been sent and will be viewed shortly");
       complaintChannel.send(complaintEmbed);
     }
   },

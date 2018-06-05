@@ -180,8 +180,7 @@ const commands = {
       
       // If no amount is specified
       if (!args[1]) return message.channel.send("Specify an amount to pay");
-
-      if (args[0] !== `<@${payUser.id}>`) return message.channel.send("Specify the member, then the number");
+      if (args[0] !== `<@${payUser.id}>` && args[0] !== `<@!${payUser.id}>` && args[0] !== payUser.id) return message.channel.send("Specify the member, then the number");
   
       let payAmount = parseFloat(args[1]).toFixed(3);
       if (args[1].toLowerCase() === "all") payAmount = mitcoinInfo.balances[message.author.id].balance;
@@ -310,6 +309,7 @@ const commands = {
     run: (message, args) => {
       if (mitcoinInfo.blacklist.includes(message.author.id)) return message.reply("you are blacklisted from using Mitcoin");
       
+      if (mitcoinInfo.balances[message.author.id].money < 0.01) return message.reply("you can't invest in any Mitcoin!")
       if (!args[0]) return message.channel.send("Specify an amount to invest");
 
       let investAmount = parseFloat(args[0]);

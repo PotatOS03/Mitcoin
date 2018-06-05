@@ -3,6 +3,7 @@ const botconfig = require("./botconfig.json");
 const Discord = require("discord.js");
 const fs = require("fs");
 const ms = require("ms");
+const Jimp = require("jimp");
 const bot = new Discord.Client({disableEveryone: true});
 
 // Mitcoin value and all user balances
@@ -79,8 +80,29 @@ const commands = {
       .addField("Mitcoin", `${MTCBal.toFixed(3)} ${MTC}`, true)
       .addField("Equivalent value", `${(mitcoinInfo.value * MTCBal).toFixed(2)} :dollar:`, true)
       .addField("Money", `${mitcoinInfo.balances[balUser.id].money.toFixed(2)} :dollar:`)
+      if (mitcoinInfo.blacklist.includes(balUser.id)) balEmbed.setFooter("You are blacklisted from using Mitcoin")
   
       message.channel.send(balEmbed);
+    }
+  },
+  blacklist: {
+    name: "blacklist",
+    run: (message, args) => {
+      if (!executives.includes(message.author.id)) return;
+
+      if (!args[0]) return message.author.send(`**List of blacklisted users:**\n${mitcoinInfo.blacklist.length > 0 ? `<@${mitcoinInfo.blacklist.join(">\n<@")}>` : "None"}`);
+
+      let blacklistUser = bot.users.find("id", args[0]) || bot.users.find("username", args.join(" ")) || message.mentions.members.first();
+      if (!blacklistUser) return message.channel.send(`${args.join(" ")} is not a valid user`);
+      blacklistUser = blacklistUser.user || blacklistUser;
+
+      if (mitcoinInfo.blacklist.includes(blacklistUser.id)) {
+        message.channel.send(`User: \`${blacklistUser.username}\` successfully removed from blacklist`);
+        return mitcoinInfo.blacklist.splice(mitcoinInfo.blacklist.indexOf(blacklistUser.id), 1)
+      }
+
+      message.channel.send(`User: \`${blacklistUser.username}\` successfully added to blacklist`);
+      mitcoinInfo.blacklist.push(blacklistUser.id);
     }
   },
   change: {
@@ -141,6 +163,8 @@ const commands = {
     name: "give",
     desc: `Give a user an amount of Mitcoin\nTips to Mitcoin executives <@${executives.join("> and <@")}> are greatly appreciated`,
     run: (message, args) => {
+      if (mitcoinInfo.blacklist.includes(message.author.id)) return message.reply("you are blacklisted from using Mitcoin");
+
       // If the user doesn't have any Mitcoin to pay
       if (mitcoinInfo.balances[message.author.id].balance === 0) return message.reply("you don't have any Mitcoin!");
 
@@ -148,9 +172,11 @@ const commands = {
       if (!args[0]) return message.channel.send("Specify a user to pay");
   
       // First user that is mentioned
-      let payUser = message.mentions.members.first();
+      let payUser = bot.users.find("id", args[0]) || message.mentions.members.first();
       if (!payUser || payUser.user.bot) return message.channel.send("Specify a valid user");
       if (payUser === message.member) return message.channel.send("You can't pay yourself!");
+
+      payUser = payUser.user || payUser;
       
       // If no amount is specified
       if (!args[1]) return message.channel.send("Specify an amount to pay");
@@ -188,7 +214,7 @@ const commands = {
       mitcoinInfo.balances[payUser.id].balance += parseFloat(payAmount);
   
       // Send the confirmation message
-      message.channel.send(`${message.author} has given ${payAmount} ${MTC} to ${payUser}`);
+      message.channel.send(`${message.author} has given ${payAmount} ${MTC} to ${payUser.username}`);
     }
   },
   giveaway: {
@@ -254,6 +280,16 @@ const commands = {
       })
     }
   },
+  graph: {
+    name: "graph",
+    desc: "View a graph of Mitcoin's value over time",
+    run: (message, args) => {
+      Jimp.read("graphLayout.png", (err, image) => {
+        if (err) return console.log(err);
+        message.channel.send(image.bitmap.data)
+      })
+    }
+  },
   help: {
     name: "help",
     run: (message, args) => {
@@ -272,6 +308,8 @@ const commands = {
     name: "invest",
     desc: "Invest in a certain amount of Mitcoin",
     run: (message, args) => {
+      if (mitcoinInfo.blacklist.includes(message.author.id)) return message.reply("you are blacklisted from using Mitcoin");
+      
       if (!args[0]) return message.channel.send("Specify an amount to invest");
 
       let investAmount = parseFloat(args[0]);
@@ -400,6 +438,8 @@ const commands = {
     name: "sell",
     desc: "Sell Mitcoin in return for money",
     run: (message, args) => {
+      if (mitcoinInfo.blacklist.includes(message.author.id)) return message.reply("you are blacklisted from using Mitcoin");
+
       // If the user doesn't have any Mitcoin
       if (mitcoinInfo.balances[message.author.id].balance === 0) return message.reply("you don't have any Mitcoin!");
       
@@ -484,6 +524,7 @@ bot.on("message", async message => {
   mitcoinInfo = {
     value: mitcoinInfo.value || 1,
     balances: mitcoinInfo.balances || {},
+    blacklist: mitcoinInfo.blacklist || [],
     history: mitcoinInfo.history || []
   }
 

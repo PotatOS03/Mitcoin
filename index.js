@@ -365,9 +365,8 @@ const commands = {
               }
           })
           if (!usernames.usernames[i]) {
-            usernames.ids.splice(i, 1);
-            usernames.usernames.splice(i, 1);
             leaderboard.splice(i, 1);
+            i--;
           }
       }
   

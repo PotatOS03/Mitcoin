@@ -364,7 +364,11 @@ const commands = {
                   usernames.usernames[i] = user.username;
               }
           })
-          if (!usernames.usernames[i]) leaderboard.splice(i, 1);
+          if (!usernames.usernames[i]) {
+            usernames.ids.splice(i, 1);
+            usernames.usernames.splice(i, 1);
+            leaderboard.splice(i, 1);
+          }
       }
   
       // Set the variable for what place the user is in

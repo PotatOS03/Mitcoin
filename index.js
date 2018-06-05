@@ -173,10 +173,10 @@ const commands = {
   
       // First user that is mentioned
       let payUser = bot.users.find("id", args[0]) || message.mentions.members.first();
-      if (!payUser || payUser.user.bot) return message.channel.send("Specify a valid user");
-      if (payUser === message.member) return message.channel.send("You can't pay yourself!");
-
       payUser = payUser.user || payUser;
+      
+      if (!payUser || payUser.bot) return message.channel.send("Specify a valid user");
+      if (payUser === message.author) return message.channel.send("You can't pay yourself!");
       
       // If no amount is specified
       if (!args[1]) return message.channel.send("Specify an amount to pay");

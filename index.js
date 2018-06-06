@@ -605,7 +605,6 @@ bot.on("message", async message => {
 
   // See if mitcoinInfo balances have changed
   if (JSON.stringify(mitcoinInfo) !== oldMitcoinInfo) {
-    mitcoinInfo = require("./mitcoininfo.json");
     // Save the Mitcoin file
     client.query("DELETE FROM balances");
     client.query("DELETE FROM blacklist");

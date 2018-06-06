@@ -605,7 +605,7 @@ bot.on("message", async message => {
     client.query("DELETE FROM history");
     client.query(`UPDATE value SET value = ${mitcoinInfo.value}`);
     for (let i in mitcoinInfo.balances) {
-      client.query(`INSERT INTO balances VALUES(${i}, ${mitcoinInfo.balances[i].balance}, ${mitcoinInfo[i].money})`);
+      client.query(`INSERT INTO balances VALUES(${i}, ${mitcoinInfo.balances[i].balance}, ${mitcoinInfo.balances[i].money})`);
     }
     for (let i in mitcoinInfo.blacklist) {
       client.query(`INSERT INTO blacklist VALUES(${mitcoinInfo.blacklist[i]})`);

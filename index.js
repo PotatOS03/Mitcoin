@@ -21,7 +21,6 @@ const client = new Client({
 client.connect();
 client.query('SELECT NOW()', (err, res) => {
   console.log(err, res)
-  client.end()
 })
 
 client.query("CREATE TABLE balances (id INTEGER PRIMARY KEY, mitcoin NUMERIC, money NUMERIC");

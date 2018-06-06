@@ -20,22 +20,36 @@ client.query("CREATE TABLE balances(id TEXT PRIMARY KEY, mitcoin REAL, money REA
 client.query("CREATE TABLE blacklist(id TEXT PRIMARY KEY)");
 client.query("CREATE TABLE history(id INTEGER PRIMARY KEY, value REAL)");
 client.query("INSERT INTO history VALUES(1, 1)");*/
-client.query("SELECT * FROM value", (err, res) => {
-  console.log(res.rows);
-})
-client.query("SELECT * FROM balances", (err, res) => {
-  console.log(res.rows);
-})
-client.query("SELECT * FROM blacklist", (err, res) => {
-  console.log(res.rows);
-})
-client.query("SELECT * FROM history", (err, res) => {
-  console.log(res.rows);
-})
 
 // Mitcoin value and all user balances
-let mitcoinInfo = require("./mitcoininfo.json");
-let mitcoinValue = client.query("SELECT value FROM value", (err, res) => console.log(res));
+let mitcoinInfo = {
+  value: 1,
+  balances: {},
+  blacklist: [],
+  history: []
+};
+client.query("SELECT * FROM value", (err, res) => {
+  mitcoinInfo.value = (res.rows[0].value);
+})
+client.query("SELECT * FROM balances", (err, res) => {
+  res.rows.forEach(b => {
+    mitcoinInfo.balances[b.id] = {
+      balance: b.mitcoin,
+      money: b.money
+    }
+  })
+})
+client.query("SELECT * FROM blacklist", (err, res) => {
+  res.rows.forEach(b => {
+    mitcoinInfo.blacklist.push(b.id);
+  })
+})
+client.query("SELECT * FROM history", (err, res) => {
+  res.rows.forEach(h => {
+    mitcoinInfo.history.push(h.value);
+  })
+})
+
 
 // Mitcoin executives PotatOS and Mitrue
 let executives = ["286664522083729409", "365444992132448258"];
@@ -51,11 +65,9 @@ setInterval(function() {
   let fluctuation = Math.round(Math.random() * 10 - 5);
   
   // Change Mitcoin's value
-  mitcoinValue *= (fluctuation + 100) / 100;
+  mitcoinInfo.value *= (fluctuation + 100) / 100;
   mitcoinInfo.history.push(parseFloat(mitcoinInfo.value.toFixed(3)));
   bot.user.setActivity(`MTC Value: ${mitcoinInfo.value.toFixed(2)} | m/help`);
-  
-  client.query(`UPDATE value SET value = ${mitcoinValue}`)
 }, fluctuationTime);
 
 // When the bot is loaded
@@ -559,10 +571,6 @@ bot.on("message", async message => {
   }
 
   // If the user doesn't have a Mitcoin balance yet, set it up
-  client.query(`INSERT INTO balances VALUES(${message.author.id}, 0, 1)`, values, (err, res) => {
-    if (err) return console.log(err.stack)
-    console.log(res)
-  })
   if (!mitcoinInfo.balances[message.author.id]) mitcoinInfo.balances[message.author.id] = {
     balance: 0,
     money: 1
@@ -591,12 +599,21 @@ bot.on("message", async message => {
 
   // See if mitcoinInfo balances have changed
   if (JSON.stringify(mitcoinInfo) !== oldMitcoinInfo) {
-    // Channel to send logs to
-    let logChannel = bot.channels.find("id", "446758326035021824");
-    // Send the current Mitcoin info
-    for (let i = 0; i < JSON.stringify(mitcoinInfo).length; i += 2000) logChannel.send(JSON.stringify(mitcoinInfo).substr(i, 2000));
     // Save the Mitcoin file
-    fs.writeFileSync("./mitcoininfo.json", JSON.stringify(mitcoinInfo));
+    client.query("DELETE FROM balances");
+    client.query("DELETE FROM blacklist");
+    client.query("DELETE FROM history");
+    client.query(`UPDATE value SET value = ${mitcoinInfo.value}`);
+    for (let i in mitcoinInfo.balances) {
+      client.query(`INSERT INTO balances VALUES(${i}, ${mitcoinInfo[i].balance}, ${mitcoinInfo[i].money})`);
+    }
+    for (let i in mitcoinInfo.blacklist) {
+      client.query(`INSERT INTO blacklist VALUES(${mitcoinInfo.blacklist[i]})`);
+    }
+    for (let i in mitcoinInfo.history) {
+      client.query(`INSERT INTO history VALUES(${mitcoinInfo.history[i]})`);
+    }
+    console.log(client);
   }
   
   if (cmd.slice(prefix.length) === "eval") {
@@ -611,4 +628,4 @@ bot.on("message", async message => {
 });
 
 // Log in to the Discord bot
-//bot.login(tokenfile.token); // bot.login(process.env.BOT_TOKEN);
+bot.login(process.env.BOT_TOKEN);

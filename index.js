@@ -9,7 +9,7 @@ const bot = new Discord.Client({disableEveryone: true});
 const { Client } = require('pg');
 
 const client = new Client({
-  connectionString: botconfig.connectionURL || process.env.CONNECTION_URL
+  connectionString: `${botconfig.connectionURL || process.env.DATABASE_URL}?ssl=true`
 })
 client.connect();
 
@@ -590,7 +590,6 @@ bot.on("message", async message => {
 
   // See if mitcoinInfo balances have changed
   if (JSON.stringify(mitcoinInfo) !== oldMitcoinInfo) {
-    mitcoinInfo = require("./mitcoininfo.json");
     // Save the Mitcoin file
     client.query("DELETE FROM balances");
     client.query("DELETE FROM blacklist");

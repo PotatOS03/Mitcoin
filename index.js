@@ -138,6 +138,9 @@ const commands = {
     run: (message, args) => {
       if (!complaints[message.author.id]) complaints[message.author.id] = {complaints: 0};
       if (complaints[message.author.id].complaints >= 1) return message.reply("you can only send one complaint per day");
+      
+      let complaint = args.join(" ");
+      if (!complaint) return message.channel.send("Specify a message");
 
       complaints[message.author.id].complaints++;
       setTimeout(function() {
@@ -145,9 +148,6 @@ const commands = {
       }, 86400000);
 
       let complaintChannel = bot.channels.find("id", "452269954167865345");
-
-      let complaint = args.join(" ");
-      if (!complaint) return message.channel.send("Specify a message");
 
       let complaintEmbed = new Discord.RichEmbed()
       .setColor("#ff9900")
@@ -282,10 +282,9 @@ const commands = {
   graph: {
     name: "graph",
     desc: "View a graph of Mitcoin's value over time",
-    run: (message, args) => {
-      Jimp.read("graphLayout.png", (err, image) => {
+    run: async (message, args) => {
+      Jimp.read("graphLayout.png", async (err, image) => {
         if (err) return console.log(err);
-        
       })
     }
   },

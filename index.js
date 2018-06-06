@@ -64,7 +64,7 @@ setInterval(function() {
   client.query("DELETE FROM history");
   client.query(`UPDATE value SET value = ${mitcoinInfo.value}`);
   for (let i in mitcoinInfo.history) {
-    client.query(`INSERT INTO history VALUES(${mitcoinInfo.history[i]})`);
+    client.query(`INSERT INTO history VALUES(${i}, ${mitcoinInfo.history[i]})`);
   }
 }, fluctuationTime);
 
@@ -602,7 +602,7 @@ bot.on("message", async message => {
       client.query(`INSERT INTO blacklist VALUES(${mitcoinInfo.blacklist[i]})`);
     }
     for (let i in mitcoinInfo.history) {
-      client.query(`INSERT INTO history VALUES(${mitcoinInfo.history[i]})`);
+      client.query(`INSERT INTO history VALUES(${i}, ${mitcoinInfo.history[i]})`);
     }
   }
   

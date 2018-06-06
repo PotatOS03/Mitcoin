@@ -551,7 +551,7 @@ bot.on("message", async message => {
   if (message.channel.type === "dm") return;
   
   // Mitcoin file to compare later
-  let oldMitcoinInfo = fs.readFileSync("./mitcoininfo.json", {encoding: "UTF-8"});
+  let oldMitcoinInfo = mitcoinInfo;
 
   // Set up what the Mitcoin file has
   mitcoinInfo = {
@@ -589,7 +589,7 @@ bot.on("message", async message => {
   }
 
   // See if mitcoinInfo balances have changed
-  if (JSON.stringify(mitcoinInfo) !== oldMitcoinInfo) {
+  if (mitcoinInfo !== oldMitcoinInfo) {
     // Save the Mitcoin file
     client.query("DELETE FROM balances");
     client.query("DELETE FROM blacklist");

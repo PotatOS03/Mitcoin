@@ -14,7 +14,7 @@ const client = new Client({
 })
 client.connect();
 
-client.query("CREATE TABLE balances(id STRING PRIMARY KEY, mitcoin NUMERIC, money NUMERIC)")
+client.query("CREATE TABLE balances(id TEXT PRIMARY KEY, mitcoin NUMERIC, money NUMERIC)")
 const text = 'INSERT INTO balances(id, mitcoin, money) VALUES($1, $2, $3) RETURNING *';
 const values = ['286664522083729409', 0, 1];
 

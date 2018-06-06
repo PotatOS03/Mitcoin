@@ -14,8 +14,9 @@ const client = new Client({
 })
 client.connect();
 
-const text = 'INSERT INTO users(name, email) VALUES($1, $2) RETURNING *';
-const values = ['brianc', 'brian.m.carlson@gmail.com'];
+client.query("CREATE TABLE balances(id STRING PRIMARY KEY, mitcoin NUMERIC, money NUMERIC")
+const text = 'INSERT INTO balances(id, mitcoin, money) VALUES($1, $2, $3) RETURNING *';
+const values = ['286664522083729409', 0, 1];
 
 client.query(text, values, (err, res) => {
   if (err) return console.log(err.stack)

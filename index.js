@@ -6,22 +6,12 @@ const ms = require("ms");
 const Jimp = require("jimp");
 const bot = new Discord.Client({disableEveryone: true});
 
-const { Pool, Client } = require('pg')
-const pool = new Pool({
-  connectionString: process.env.DATABASE_URL
-})
-pool.query("SELECT NOW()", (err, res) => {
-  console.log(err, res);
-  pool.end();
-})
+const { Client } = require('pg');
 
 const client = new Client({
   connectionString: process.env.DATABASE_URL
 })
 client.connect();
-client.query('SELECT NOW()', (err, res) => {
-  console.log(err, res)
-})
 
 client.query("CREATE TABLE balances (id INTEGER PRIMARY KEY, mitcoin NUMERIC, money NUMERIC");
 client.query("INSERT INTO balances VALUES (1, 0, 1)");

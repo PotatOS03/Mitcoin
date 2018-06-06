@@ -13,13 +13,14 @@ const client = new Client({
 })
 client.connect();
 
-client.query('SELECT NOW() as now', (err, res) => {
-  if (err) {
-    console.log(err.stack)
-  } else {
-    console.log(res.rows[0])
-  }
+const text = 'INSERT INTO users(name, email) VALUES($1, $2) RETURNING *';
+const values = ['brianc', 'brian.m.carlson@gmail.com'];
+
+client.query(text, values, (err, res) => {
+  if (err) return console.log(err.stack)
+  console.log(res.rows[0])
 })
+client.end();
 
 // Mitcoin value and all user balances
 let mitcoinInfo = require("./mitcoininfo.json");

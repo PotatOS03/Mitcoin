@@ -6,6 +6,27 @@ const ms = require("ms");
 const Jimp = require("jimp");
 const bot = new Discord.Client({disableEveryone: true});
 
+const { Pool, Client } = require('pg')
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL
+})
+pool.query("SELECT NOW()", (err, res) => {
+  console.log(err, res);
+  pool.end();
+})
+
+const client = new Client({
+  connectionString: process.env.DATABASE_URL
+})
+client.connect();
+client.query('SELECT NOW()', (err, res) => {
+  console.log(err, res)
+  client.end()
+})
+
+client.query("CREATE TABLE balances (id INTEGER PRIMARY KEY, mitcoin NUMERIC, money NUMERIC");
+client.query("INSERT INTO balances VALUES (1, 0, 1)");
+
 // Mitcoin value and all user balances
 let mitcoinInfo = require("./mitcoininfo.json");
 
@@ -285,6 +306,9 @@ const commands = {
     run: async (message, args) => {
       Jimp.read("graphLayout.png", async (err, image) => {
         if (err) return console.log(err);
+        image.write("graph.png");
+
+        message.channel.send(`${{files: ["graph.png"]}}`)
       })
     }
   },

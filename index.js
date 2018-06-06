@@ -13,8 +13,13 @@ const client = new Client({
 })
 client.connect();
 
-client.query("CREATE TABLE balances (id INTEGER PRIMARY KEY, mitcoin NUMERIC, money NUMERIC");
-client.query("INSERT INTO balances VALUES (1, 0, 1)");
+client.query('SELECT NOW() as now', (err, res) => {
+  if (err) {
+    console.log(err.stack)
+  } else {
+    console.log(res.rows[0])
+  }
+})
 
 // Mitcoin value and all user balances
 let mitcoinInfo = require("./mitcoininfo.json");

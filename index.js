@@ -68,6 +68,12 @@ setInterval(function() {
   mitcoinInfo.value *= (fluctuation + 100) / 100;
   mitcoinInfo.history.push(parseFloat(mitcoinInfo.value.toFixed(3)));
   bot.user.setActivity(`MTC Value: ${mitcoinInfo.value.toFixed(2)} | m/help`);
+
+  client.query("DELETE FROM history");
+  client.query(`UPDATE value SET value = ${mitcoinInfo.value}`);
+  for (let i in mitcoinInfo.history) {
+    client.query(`INSERT INTO history VALUES(${mitcoinInfo.history[i]})`);
+  }
 }, fluctuationTime);
 
 // When the bot is loaded
@@ -613,7 +619,6 @@ bot.on("message", async message => {
     for (let i in mitcoinInfo.history) {
       client.query(`INSERT INTO history VALUES(${mitcoinInfo.history[i]})`);
     }
-    console.log(client);
   }
   
   if (cmd.slice(prefix.length) === "eval") {

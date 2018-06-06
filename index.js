@@ -19,10 +19,19 @@ client.query("INSERT INTO value VALUES(1)");
 client.query("CREATE TABLE balances(id TEXT PRIMARY KEY, mitcoin REAL, money REAL)");
 client.query("CREATE TABLE blacklist(id TEXT PRIMARY KEY)");
 client.query("CREATE TABLE history(id INTEGER PRIMARY KEY, value REAL)");
-client.query("INSERT INTO history VALUES(1)", (err, res) => {
+client.query("INSERT INTO history VALUES(1)");
+client.query("SELECT * FROM value", (err, res) => {
   console.log(res);
-});
-
+})
+client.query("SELECT * FROM balances", (err, res) => {
+  console.log(res);
+})
+client.query("SELECT * FROM blacklist", (err, res) => {
+  console.log(res);
+})
+client.query("SELECT * FROM history", (err, res) => {
+  console.log(res);
+})
 
 // Mitcoin value and all user balances
 let mitcoinInfo = require("./mitcoininfo.json");

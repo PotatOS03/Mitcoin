@@ -285,7 +285,7 @@ const commands = {
     run: (message, args) => {
       Jimp.read("graphLayout.png", (err, image) => {
         if (err) return console.log(err);
-        message.channel.send(image.bitmap.data)
+        
       })
     }
   },

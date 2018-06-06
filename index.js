@@ -1,5 +1,6 @@
 // Bot setup
 const botconfig = require("./botconfig.json");
+const tokenfile = require("./token.json");
 const Discord = require("discord.js");
 const fs = require("fs");
 const ms = require("ms");
@@ -20,8 +21,7 @@ client.query(text, values, (err, res) => {
   if (err) return console.log(err.stack)
   console.log(res.rows[0])
 })
-client.end();
-
+/*
 // Mitcoin value and all user balances
 let mitcoinInfo = require("./mitcoininfo.json");
 
@@ -599,4 +599,4 @@ bot.on("message", async message => {
 });
 
 // Log in to the Discord bot
-bot.login(process.env.BOT_TOKEN);
+bot.login(tokenfile.token); // bot.login(process.env.BOT_TOKEN);*/

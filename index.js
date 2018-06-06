@@ -18,7 +18,7 @@ client.query("CREATE TABLE value(value REAL)");
 client.query("INSERT INTO value VALUES(1)");
 client.query("CREATE TABLE balances(id TEXT PRIMARY KEY, mitcoin REAL, money REAL)");
 client.query("CREATE TABLE blacklist(id TEXT PRIMARY KEY)");
-client.query("CREATE TABLE history(id PRIMARY KEY AUTOINCREMENT, value REAL");
+client.query("CREATE TABLE history(id INTEGER PRIMARY KEY AUTOINCREMENT, value REAL");
 client.query("INSERT INTO history VALUES(1)", (err, res) => {
   console.log(res);
 });

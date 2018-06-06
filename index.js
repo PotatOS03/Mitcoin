@@ -35,7 +35,8 @@ client.query("SELECT * FROM history", (err, res) => {
 
 // Mitcoin value and all user balances
 let mitcoinInfo = require("./mitcoininfo.json");
-let mitcoinValue = mitcoinInfo.value;
+let mitcoinValue = client.query("SELECT value FROM value").res;
+console.log(mitcoinValue);
 
 // Mitcoin executives PotatOS and Mitrue
 let executives = ["286664522083729409", "365444992132448258"];

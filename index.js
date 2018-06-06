@@ -14,12 +14,12 @@ const client = new Client({
 })
 client.connect();
 
-client.query("CREATE TABLE value(value REAL)");
+/*client.query("CREATE TABLE value(value REAL)");
 client.query("INSERT INTO value VALUES(1)");
 client.query("CREATE TABLE balances(id TEXT PRIMARY KEY, mitcoin REAL, money REAL)");
 client.query("CREATE TABLE blacklist(id TEXT PRIMARY KEY)");
 client.query("CREATE TABLE history(id INTEGER PRIMARY KEY, value REAL)");
-client.query("INSERT INTO history VALUES(1, 1)");
+client.query("INSERT INTO history VALUES(1, 1)");*/
 client.query("SELECT * FROM value", (err, res) => {
   console.log(res.rows);
 })

@@ -1,6 +1,5 @@
 // Bot setup
 const botconfig = require("./botconfig.json");
-//const tokenfile = require("./token.json");
 const Discord = require("discord.js");
 const fs = require("fs");
 const ms = require("ms");
@@ -13,13 +12,6 @@ const client = new Client({
   connectionString: process.env.DATABASE_URL
 })
 client.connect();
-
-/*client.query("CREATE TABLE value(value REAL)");
-client.query("INSERT INTO value VALUES(1)");
-client.query("CREATE TABLE balances(id TEXT PRIMARY KEY, mitcoin REAL, money REAL)");
-client.query("CREATE TABLE blacklist(id TEXT PRIMARY KEY)");
-client.query("CREATE TABLE history(id INTEGER PRIMARY KEY, value REAL)");
-client.query("INSERT INTO history VALUES(1, 1)");*/
 
 // Mitcoin value and all user balances
 let mitcoinInfo = {
@@ -80,13 +72,6 @@ setInterval(function() {
 bot.on("ready", async () => {
   console.log(`${bot.user.username} is online in ${bot.guilds.size} servers!`);
   bot.user.setActivity(`MTC Value: ${mitcoinInfo.value.toFixed(2)} | m/help`);
-
-  // Channel to send logs to
-  let logChannel = bot.channels.find("id", "446758326035021824");
-  logChannel.send("Update mitcoininfo!");
-  
-  let PotatOS = bot.users.find("id", executives[0]);
-  PotatOS.send("Update mitcoininfo!");
 });
 
 // Bot uptime

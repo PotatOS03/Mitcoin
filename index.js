@@ -14,17 +14,19 @@ const client = new Client({
 })
 client.connect();
 
-client.query("CREATE TABLE balances(id TEXT PRIMARY KEY, mitcoin NUMERIC, money NUMERIC)")
-const text = 'INSERT INTO balances(id, mitcoin, money) VALUES($1, $2, $3) RETURNING *';
-const values = ['286664522083729409', 0, 1];
+client.query("CREATE TABLE value(value REAL)");
+client.query("INSERT INTO value VALUES(1)");
+client.query("CREATE TABLE balances(id TEXT PRIMARY KEY, mitcoin REAL, money REAL)");
+client.query("CREATE TABLE blacklist(id TEXT PRIMARY KEY)");
+client.query("CREATE TABLE history(id PRIMARY KEY AUTOINCREMENT, value REAL");
+client.query("INSERT INTO history VALUES(1)", (err, res) => {
+  console.log(res);
+});
 
-client.query(text, values, (err, res) => {
-  if (err) return console.log(err.stack)
-  console.log(res.rows[0])
-})
-/*
+
 // Mitcoin value and all user balances
 let mitcoinInfo = require("./mitcoininfo.json");
+let mitcoinValue = mitcoinInfo.value;
 
 // Mitcoin executives PotatOS and Mitrue
 let executives = ["286664522083729409", "365444992132448258"];
@@ -40,15 +42,11 @@ setInterval(function() {
   let fluctuation = Math.round(Math.random() * 10 - 5);
   
   // Change Mitcoin's value
-  mitcoinInfo.value *= (fluctuation + 100) / 100;
+  mitcoinValue *= (fluctuation + 100) / 100;
   mitcoinInfo.history.push(parseFloat(mitcoinInfo.value.toFixed(3)));
   bot.user.setActivity(`MTC Value: ${mitcoinInfo.value.toFixed(2)} | m/help`);
   
-  // Channel to send logs to
-  let logChannel = bot.channels.find("id", "446758326035021824");
-  for (let i = 0; i < JSON.stringify(mitcoinInfo).length; i += 2000) logChannel.send(JSON.stringify(mitcoinInfo).substr(i, 2000));
-  
-  fs.writeFileSync("./mitcoininfo.json", JSON.stringify(mitcoinInfo));
+  client.query(`UPDATE value SET value = ${mitcoinValue}`)
 }, fluctuationTime);
 
 // When the bot is loaded
@@ -552,6 +550,10 @@ bot.on("message", async message => {
   }
 
   // If the user doesn't have a Mitcoin balance yet, set it up
+  client.query(`INSERT INTO balances VALUES(${message.author.id}, 0, 1)`, values, (err, res) => {
+    if (err) return console.log(err.stack)
+    console.log(res)
+  })
   if (!mitcoinInfo.balances[message.author.id]) mitcoinInfo.balances[message.author.id] = {
     balance: 0,
     money: 1
@@ -600,4 +602,4 @@ bot.on("message", async message => {
 });
 
 // Log in to the Discord bot
-bot.login(tokenfile.token); // bot.login(process.env.BOT_TOKEN);*/
+//bot.login(tokenfile.token); // bot.login(process.env.BOT_TOKEN);

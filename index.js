@@ -1,12 +1,47 @@
+/**
+ * MITCOIN BOT
+ * Made by Mitrue and PotatOS
+ * A Discord bot that simulates a cryptocurrency
+ * Users can invest, sell, and give MTC as the value changes in order to increase their overall balance
+ * Mitcoin value, all user balances, all users in the blacklist, and a history of past values are stored in a database automatically
+ * Blacklisted users are not allowed to participate in the Mitcoin economy, but can still use commands to view information
+ * 
+ * COMMANDS - Everyone can use
+ * balance     - Check your balance in Mitcoin
+ * change      - View how much Mitcoin's value has changed over time
+ * complain    - Send a formal complaint to be viewed by the Mitcoin executives
+ * give        - Give a user an amount of Mitcoin
+ * help        - Show a list of commands
+ * invest      - Invest in a certain amount of Mitcoin
+ * leaderboard - View the current Mitcoin leaderboard
+ * logo        - See the Mitcoin logo
+ * sell        - Sell Mitcoin in return for money
+ * uptime      - See how long the bot has been running
+ * value       - See Mitcoin's current value
+ * 
+ * COMMANDS - Executives only
+ * blacklist - View, add to, or remove from the blacklist
+ * giveaway  - Hold a Mitcoin giveaway where a random user is given an amount of MTC at the end
+ * reset     - Reset Mitcoin's value to 1 or reset all user balances
+ * 
+ * Don't Delay. Invest Today!
+ * 
+ * TO DO
+ * Design and implement a more stable value fluctuation system (Option 2 chosen, for now)
+ * - Could be dependent on supply and demand
+ * - Could stay random, but try to stay closer to 1
+ * Redo the comments to accurately fit what is happening in the code
+ */
+
 // Bot setup
 const botconfig = require("./botconfig.json");
+const tokenfile = require("./token.json");
 const Discord = require("discord.js");
 const fs = require("fs");
 const ms = require("ms");
-const Jimp = require("jimp");
 const bot = new Discord.Client({disableEveryone: true});
 
-const { Client } = require('pg');
+const { Client } = require("pg");
 
 const client = new Client({
   connectionString: `${botconfig.connectionURL || process.env.DATABASE_URL}?ssl=true`
@@ -42,7 +77,6 @@ client.query("SELECT * FROM history", (err, res) => {
   })
 })
 
-
 // Mitcoin executives PotatOS and Mitrue
 let executives = ["286664522083729409", "365444992132448258"];
 
@@ -54,7 +88,7 @@ let fluctuationTime = ms("10m");
 
 // Automatically fluctuate Mitcoin's value
 setInterval(function() {
-  let fluctuation = Math.round(Math.random() * 10 - 5);
+  let fluctuation = Math.round(Math.random() * 10 - 5 + (1 - mitcoinInfo.value) / 5);
   
   // Change Mitcoin's value
   mitcoinInfo.value *= (fluctuation + 100) / 100;
@@ -64,7 +98,7 @@ setInterval(function() {
   client.query("DELETE FROM history");
   client.query(`UPDATE value SET value = ${mitcoinInfo.value}`);
   for (let i in mitcoinInfo.history) {
-    client.query(`INSERT INTO history VALUES(${i}, ${mitcoinInfo.history[i]})`);
+    if (i < 9999 - mitcoinInfo.blacklist.length - Object.keys(mitcoinInfo.balances).length) client.query(`INSERT INTO history VALUES(${i}, ${mitcoinInfo.history[i]})`);
   }
 }, fluctuationTime);
 
@@ -155,7 +189,7 @@ const commands = {
       let changeEmbed = new Discord.RichEmbed()
       .setColor("#ff9900")
       .setTitle(`Mitcoin change over the past ${timeString}`)
-      .addField(`${time / fluctuationTime} fluctuations`, `${(mitcoinInfo.value / mitcoinInfo.history[mitcoinInfo.history.length - time / fluctuationTime]).toFixed(2)}%`)
+      .addField(`${time / fluctuationTime} fluctuations`, `${Math.round(mitcoinInfo.value / mitcoinInfo.history[mitcoinInfo.history.length - time / fluctuationTime] * 100)}%`)
 
       message.channel.send(changeEmbed);
     }
@@ -306,18 +340,6 @@ const commands = {
       })
     }
   },
-  graph: {
-    name: "graph",
-    desc: "View a graph of Mitcoin's value over time",
-    run: async (message, args) => {
-      Jimp.read("graphLayout.png", async (err, image) => {
-        if (err) return console.log(err);
-        image.write("graph.png");
-
-        message.channel.send(`${{files: ["graph.png"]}}`)
-      })
-    }
-  },
   help: {
     name: "help",
     run: (message, args) => {
@@ -374,7 +396,7 @@ const commands = {
     desc: "View the current Mitcoin leaderboard",
     run: (message, args) => {
       // Sort all user balances and store them in the leaderboard
-      let leaderboard = Object.values(mitcoinInfo.balances).sort((a, b) => b.balance - a.balance);
+      let leaderboard = Object.values(mitcoinInfo.balances).sort((a, b) => (b.money + b.balance * mitcoinInfo.value) - (a.money + a.balance * mitcoinInfo.value));
       
       // If there are no existing user balances
       if (leaderboard[0].balance === 0) return message.channel.send("No one has any Mitcoin!");
@@ -550,9 +572,6 @@ bot.on("message", async message => {
   // Ignore the message if it is send in DM
   if (message.channel.type === "dm") return;
   
-  // Mitcoin file to compare later
-  let oldMitcoinInfo = mitcoinInfo;
-
   // Set up what the Mitcoin file has
   mitcoinInfo = {
     value: mitcoinInfo.value || 1,
@@ -585,27 +604,23 @@ bot.on("message", async message => {
   if (message.content.startsWith(prefix)) {
     for (let i in commands) {
       if (commands[i].name === cmd.slice(prefix.length)) commands[i].run(message, args);
+      // Save the Mitcoin database
+      client.query("DELETE FROM balances");
+      client.query("DELETE FROM blacklist");
+      client.query("DELETE FROM history");
+      client.query(`UPDATE value SET value = ${mitcoinInfo.value}`);
+      for (let i in mitcoinInfo.balances) {
+        client.query(`INSERT INTO balances VALUES(${i}, ${mitcoinInfo.balances[i].balance}, ${mitcoinInfo.balances[i].money})`);
+      }
+      for (let i in mitcoinInfo.blacklist) {
+        client.query(`INSERT INTO blacklist VALUES(${mitcoinInfo.blacklist[i]})`);
+      }
+      for (let i in mitcoinInfo.history) {
+        client.query(`INSERT INTO history VALUES(${i}, ${mitcoinInfo.history[i]})`);
+      }
     }
   }
 
-  // See if mitcoinInfo balances have changed
-  if (mitcoinInfo !== oldMitcoinInfo) {
-    // Save the Mitcoin file
-    client.query("DELETE FROM balances");
-    client.query("DELETE FROM blacklist");
-    client.query("DELETE FROM history");
-    client.query(`UPDATE value SET value = ${mitcoinInfo.value}`);
-    for (let i in mitcoinInfo.balances) {
-      client.query(`INSERT INTO balances VALUES(${i}, ${mitcoinInfo.balances[i].balance}, ${mitcoinInfo.balances[i].money})`);
-    }
-    for (let i in mitcoinInfo.blacklist) {
-      client.query(`INSERT INTO blacklist VALUES(${mitcoinInfo.blacklist[i]})`);
-    }
-    for (let i in mitcoinInfo.history) {
-      client.query(`INSERT INTO history VALUES(${i}, ${mitcoinInfo.history[i]})`);
-    }
-  }
-  
   if (cmd.slice(prefix.length) === "eval") {
     if (message.author.id !== executives[0]) return;
     let code = args.slice(0).join(" ");

@@ -31,6 +31,7 @@
  * - Could be dependent on supply and demand
  * - Could stay random, but try to stay closer to 1
  * Redo the comments to accurately fit what is happening in the code
+ * There's a mysterious bug that caused mitcoin info to be momentarily reset, and that needs fixed
  */
 
 // Bot setup
@@ -395,7 +396,7 @@ const commands = {
     desc: "View the current Mitcoin leaderboard",
     run: (message, args) => {
       // Sort all user balances and store them in the leaderboard
-      let leaderboard = Object.values(mitcoinInfo.balances).sort((a, b) => (b.money + b.balance * mitcoinInfo.value) - (a.money + a.balance * mitcoinInfo.value));
+      let leaderboard = Object.values(mitcoinInfo.balances).sort((a, b) => b.balance - a.balance);
       
       // If there are no existing user balances
       if (leaderboard[0].balance === 0) return message.channel.send("No one has any Mitcoin!");

@@ -150,7 +150,7 @@ const commands = {
     name: "blacklist",
     run: (message, args) => {
       if (!executives.includes(message.author.id)) return;
-
+      
       if (!args[0]) return message.author.send(`**List of blacklisted users:**\n${mitcoinInfo.blacklist.length > 0 ? `<@${mitcoinInfo.blacklist.join(">\n<@")}>` : "None"}`);
 
       let blacklistUser = bot.users.find("id", args[0]) || bot.users.find("username", args.join(" ")) || message.mentions.members.first();
@@ -234,9 +234,10 @@ const commands = {
   
       // First user that is mentioned
       let payUser = bot.users.find("id", args[0]) || message.mentions.members.first();
+      if (!payUser) return message.channel.send("Specify a valid user");
       payUser = payUser.user || payUser;
       
-      if (!payUser || payUser.bot) return message.channel.send("Specify a valid user");
+      if (payUser.bot) return message.channel.send("Specify a valid user");
       if (payUser === message.author) return message.channel.send("You can't pay yourself!");
       
       // If no amount is specified

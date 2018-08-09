@@ -516,10 +516,11 @@ const commands = {
           sales: 0
       }
       
-      if (sales[message.author.id].sales > 0) return message.reply("you can only sell once per day");
-      sales[message.author.id].sales += sellAmount;
+      if (sales[message.author.id].sales > 1) return message.reply("you can only sell twice per day");
+      sales[message.author.id].sales++;
       setTimeout(function() {
-          sales[message.author.id].sales = 0;
+          sales[message.author.id].sales--;
+          if (sales[message.author.id].sales > 0)
           message.reply("you may sell again!");
       }, 86400000);
   

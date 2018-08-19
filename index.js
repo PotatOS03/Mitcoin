@@ -555,6 +555,8 @@ const commands = {
   }
 }
 
+bot.on('error', console.error);
+
 // How much each user has invested for the day
 let investments = {};
 

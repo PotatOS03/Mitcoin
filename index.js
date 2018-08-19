@@ -84,7 +84,7 @@ let executives = ["286664522083729409", "365444992132448258"];
 let MTC = "<:MTC:452553160557461544>";
 
 // How many milliseconds it takes for Mitcoin's value to automatically fluctuate
-let fluctuationTime = ms("10m");
+let fluctuationTime = ms("5m");
 
 // Automatically fluctuate Mitcoin's value
 setInterval(function() {

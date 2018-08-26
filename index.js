@@ -80,7 +80,7 @@ client.query("SELECT * FROM history", (err, res) => {
 // Mitcoin executives PotatOS and Mitrue
 let executives = ["286664522083729409", "365444992132448258"];
 
-let blockchain = bot.channels.find("id", "481797287064895489");
+let blockchain = "481797287064895489";
 
 // MTC logo emoji
 let MTC = "<:MTC:452553160557461544>";
@@ -287,7 +287,7 @@ const commands = {
       .addField("Recipient", `<@${payUser.id}>`)
       .setTimestamp(message.createdAt);
 
-      blockchain.send(embed);
+      bot.channels.find("id", blockchain).send(embed);
     }
   },
   giveaway: {
@@ -410,7 +410,7 @@ const commands = {
       .addField("Equivalent Amount", `${investAmount / mitcoinInfo.value} ${MTC}`)
       .setTimestamp(message.createdAt);
       
-      blockchain.send(embed);
+      bot.channels.find("id", blockchain).send(embed);
     }
   },
   leaderboard: {
@@ -559,7 +559,7 @@ const commands = {
       .addField("Equivalent Amount", `${sellAmount * mitcoinInfo.value} :dollar:`)
       .setTimestamp(message.createdAt);
 
-      blockchain.send(embed);
+      bot.channels.find("id", blockchain).send(embed);
     }
   },
   uptime: {

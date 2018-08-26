@@ -80,6 +80,8 @@ client.query("SELECT * FROM history", (err, res) => {
 // Mitcoin executives PotatOS and Mitrue
 let executives = ["286664522083729409", "365444992132448258"];
 
+let blockchain = bot.channels.find("id", "481797287064895489");
+
 // MTC logo emoji
 let MTC = "<:MTC:452553160557461544>";
 
@@ -276,6 +278,16 @@ const commands = {
   
       // Send the confirmation message
       message.channel.send(`${message.author} has given ${payAmount} ${MTC} to ${payUser.username}`);
+
+      let embed = new Discord.RichEmbed()
+      .setColor("#ff9900")
+      .setAuthor(`${message.author.username}#${message.author.discriminator}`, message.author.displayAvatarURL)
+      .addField("Given", `${payAmount} ${MTC}`)
+      .addField("Equivalent Amount", `${payAmount * mitcoinInfo.value} :dollar: `)
+      .addField("Recipient", `<@${payUser.id}>`)
+      .setTimestamp(message.createdAt);
+
+      blockchain.send(embed);
     }
   },
   giveaway: {
@@ -390,6 +402,15 @@ const commands = {
       // Send the message
       if (mitcoinInfo.balances[message.author.id].money > 0) return message.channel.send(`${message.author} has earned ${(investAmount / mitcoinInfo.value).toFixed(3)} ${MTC} after investing ${investAmount.toFixed(2)} :dollar: and has ${(mitcoinInfo.balances[message.author.id].money).toFixed(2)} :dollar: left to invest`);
       message.channel.send(`${message.author} has earned ${(investAmount / mitcoinInfo.value).toFixed(3)} ${MTC} after investing ${investAmount.toFixed(2)} :dollar: and cannot invest any more :dollar:`);
+
+      let embed = new Discord.RichEmbed()
+      .setColor("#ff9900")
+      .setAuthor(`${message.author.username}#${message.author.discriminator}`, message.author.displayAvatarURL)
+      .addField("Invested", `${investAmount} :dollar:`)
+      .addField("Equivalent Amount", `${investAmount / mitcoinInfo.value} ${MTC}`)
+      .setTimestamp(message.createdAt);
+      
+      blockchain.send(embed);
     }
   },
   leaderboard: {
@@ -530,6 +551,15 @@ const commands = {
   
       // Send the confirmation message
       message.channel.send(`${message.author} has sold ${Math.round(sellAmount * 1000) / 1000} ${MTC} and recieved ${(sellAmount * mitcoinInfo.value).toFixed(2)} :dollar:`);
+
+      let embed = new Discord.RichEmbed()
+      .setColor("#ff9900")
+      .setAuthor(`${message.author.username}#${message.author.discriminator}`, message.author.displayAvatarURL)
+      .addField("Sold", `${sellAmount} ${MTC}`)
+      .addField("Equivalent Amount", `${sellAmount * mitcoinInfo.value} :dollar:`)
+      .setTimestamp(message.createdAt);
+
+      blockchain.send(embed);
     }
   },
   uptime: {
@@ -555,7 +585,7 @@ const commands = {
   }
 }
 
-bot.on('error', console.error);
+bot.on('error', error => console.error);
 
 // How much each user has invested for the day
 let investments = {};

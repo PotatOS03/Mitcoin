@@ -79,7 +79,7 @@ client.query("SELECT * FROM history", (err, res) => {
 // Mitcoin executives PotatOS and Mitrue
 let executives = ["286664522083729409", "365444992132448258"];
 
-let blockchain = "446758326035021824";//481797287064895489
+let blockchain = "481797287064895489";
 let logs = "485839182170685460";
 
 // MTC logo emoji

@@ -30,7 +30,7 @@
  * TO DO
  * Redo the comments to accurately fit what is happening in the code
  * Add DM commands
- * Diagnose blockchain
+ * Add events for the Mitcoin server
  */
 
 // Bot setup
@@ -233,7 +233,7 @@ const commands = {
         complaints[message.author.id].complaints--;
       }, 86400000);
 
-      let complaintChannel = bot.channels.get("452269954167865345");
+      let complaintChannel = bot.channels.get(logs);
 
       let complaintEmbed = new Discord.RichEmbed()
       .setColor("#ff9900")
@@ -422,6 +422,19 @@ const commands = {
       bot.channels.get(blockchain).send(embed);
     }
   },
+  invite: {
+    name: "invite",
+    desc: "Join Mitcoin's server or invite the bot",
+    run: (message, args) => {
+      let serverMembers = 0;
+      bot.guilds.get("430340461878575105").members.forEach(member => {
+        if (!member.user.bot) serverMembers++;
+      })
+
+      let inviteEmbed = new Discord.RichEmbed().setColor("ff9900").addField("Invite Mitcoin Bot", `Not yet implemented`).addField("Official Mitcoin Server", `[dmVsaYW](https://discord.gg/dmVsaYW '${serverMembers} members')`);
+      message.channel.send(inviteEmbed);
+    }
+  },
   leaderboard: {
     name: "leaderboard",
     desc: "View the current Mitcoin leaderboard",
@@ -593,7 +606,7 @@ const commands = {
   }
 }
 
-bot.on('error', error => console.error(error));
+bot.on('error', console.error);
 
 // How much each user has invested for the day
 let investments = {};

@@ -41,6 +41,9 @@ const fs = require("fs");
 const ms = require("ms");
 const bot = new Discord.Client({disableEveryone: true});
 
+// For errors
+require("longjohn");
+
 // Connect to the database
 const { Client } = require("pg");
 

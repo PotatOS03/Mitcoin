@@ -239,7 +239,7 @@ const commands = {
       message.channel.send(changeEmbed);
     }
   },
-  complain: {
+  /*complain: {
     name: "complain",
     desc: "Send a formal complaint to the Mitcoin executives",
     run: (message, args) => {
@@ -260,7 +260,7 @@ const commands = {
       message.channel.send("✅ Your complaint has been sent and will be viewed shortly");
       complaintChannel.send(complaintEmbed);
     }
-  },
+  },*/
   give: {
     name: "give",
     desc: "Give a user an amount of Mitcoin",

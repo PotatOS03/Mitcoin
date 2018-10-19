@@ -70,7 +70,6 @@ client.query("SELECT * FROM history", (err, res) => {
   res.rows.forEach(h => {
     mitcoinInfo.history.push(h.value);
   })
-  client.end();
 })
 client.query("SELECT * FROM balances", (err, res) => {
   res.rows.forEach(b => {

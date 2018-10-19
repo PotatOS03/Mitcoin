@@ -80,10 +80,6 @@ client.query("SELECT * FROM balances", (err, res) => {
     }
   })
 })
-if (Object.keys(mitcoinInfo.balances).length <= 0) {
-  console.log("Database not loaded properly?");
-  process.exit();
-}
 
 // For creating graphs
 const ChartjsNode = require("chartjs-node");
@@ -123,6 +119,11 @@ setInterval(function() {
 
 // When the bot is loaded
 bot.on("ready", async () => {
+  if (Object.keys(mitcoinInfo.balances).length <= 0) {
+    console.log("Database not loaded properly?");
+    process.exit();
+  }
+  
   console.log(`${bot.user.username} is online in ${bot.guilds.size} servers!`);
   bot.user.setActivity(`MTC Value: ${mitcoinInfo.value.toFixed(3)} | m/help`);
   bot.user.setStatus("online");

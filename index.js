@@ -819,7 +819,7 @@ bot.on("message", async message => {
   
   // If the message is a command, run the command
   for (let i in commands) {
-    if (commands[i].name === cmd.slice(prefix.length) || commands[i].alias.includes(cmd.slice(prefix.length))) commands[i].run(message, args);
+    if (commands[i].name === cmd.slice(prefix.length) || (commands[i].alias && commands[i].alias.includes(cmd.slice(prefix.length)))) commands[i].run(message, args);
 
     // If mitcoinInfo changed
     if (Object.keys(mitcoinInfo) !== oldInfo) {

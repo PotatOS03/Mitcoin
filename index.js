@@ -122,7 +122,7 @@ bot.on("ready", async () => {
     console.log("Database not loaded properly?");
     process.exit();
   }
-  
+
   console.log(`${bot.user.username} is online in ${bot.guilds.size} servers!`);
   bot.user.setActivity(`MTC Value: ${mitcoinInfo.value.toFixed(3)} | m/help`);
   bot.user.setStatus("online");
@@ -163,6 +163,7 @@ bot.on("guildCreate", guild => {
 const commands = {
   balance: {
     name: "balance",
+    alias: ["bal"],
     desc: "Check your balance in Mitcoin",
     run: (message, args) => {
       // Whose balance is being shown
@@ -408,6 +409,7 @@ const commands = {
   },
   graph: {
     name: "graph",
+    alias: ["chart"],
     desc: "Display a graph of recent Mitcoin values",
     run: async (message, args) => {
       // If there isn't any history and thus nothing to display
@@ -533,6 +535,7 @@ const commands = {
   },
   invest: {
     name: "invest",
+    alias: ["buy"],
     desc: "Invest in a certain amount of Mitcoin",
     run: (message, args) => {
       // If the user is blacklisted
@@ -598,6 +601,7 @@ const commands = {
   },
   leaderboard: {
     name: "leaderboard",
+    alias: ["top", "board"],
     desc: "View the current Mitcoin leaderboard",
     run: (message, args) => {
       // Sort all user balances and store them in the leaderboard
@@ -790,13 +794,8 @@ bot.on("message", async message => {
   // Ignore the message if it is send in DM
   if (message.channel.type === "dm") return;
   
-  // Set up what the Mitcoin file has
-  mitcoinInfo = {
-    value: mitcoinInfo.value || 1,
-    balances: mitcoinInfo.balances || {},
-    blacklist: mitcoinInfo.blacklist || [],
-    history: mitcoinInfo.history || []
-  }
+  // Old mitcoinInfo to compare later
+  let oldInfo = Object.keys(mitcoinInfo);
 
   // If the user doesn't have a Mitcoin balance yet, set it up
   if (!mitcoinInfo.balances[message.author.id]) mitcoinInfo.balances[message.author.id] = {
@@ -820,20 +819,24 @@ bot.on("message", async message => {
   
   // If the message is a command, run the command
   for (let i in commands) {
-    if (commands[i].name === cmd.slice(prefix.length)) commands[i].run(message, args);
-    // Save the Mitcoin database
-    client.query("DELETE FROM balances");
-    client.query("DELETE FROM blacklist");
-    client.query("DELETE FROM history");
-    client.query(`UPDATE value SET value = ${mitcoinInfo.value}`);
-    for (let i in mitcoinInfo.balances) {
-      client.query(`INSERT INTO balances VALUES(${i}, ${mitcoinInfo.balances[i].balance}, ${mitcoinInfo.balances[i].money})`);
-    }
-    for (let i in mitcoinInfo.blacklist) {
-      client.query(`INSERT INTO blacklist VALUES(${mitcoinInfo.blacklist[i]})`);
-    }
-    for (let i in mitcoinInfo.history) {
-      client.query(`INSERT INTO history VALUES(${i}, ${mitcoinInfo.history[i]})`);
+    if (commands[i].name === cmd.slice(prefix.length) || commands[i].alias.includes(cmd.slice(prefix.length))) commands[i].run(message, args);
+
+    // If mitcoinInfo changed
+    if (Object.keys(mitcoinInfo) !== oldInfo) {
+      // Save the Mitcoin database
+      client.query("DELETE FROM balances");
+      client.query("DELETE FROM blacklist");
+      client.query("DELETE FROM history");
+      client.query(`UPDATE value SET value = ${mitcoinInfo.value}`);
+      for (let i in mitcoinInfo.balances) {
+        client.query(`INSERT INTO balances VALUES(${i}, ${mitcoinInfo.balances[i].balance}, ${mitcoinInfo.balances[i].money})`);
+      }
+      for (let i in mitcoinInfo.blacklist) {
+        client.query(`INSERT INTO blacklist VALUES(${mitcoinInfo.blacklist[i]})`);
+      }
+      for (let i in mitcoinInfo.history) {
+        client.query(`INSERT INTO history VALUES(${i}, ${mitcoinInfo.history[i]})`);
+      }
     }
   }
 

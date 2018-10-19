@@ -29,7 +29,6 @@
  * Don't Delay. Invest Today!
  * 
  * TO DO
- * Redo the comments to accurately fit what is happening in the code
  * Add DM commands
  * Add events for the Mitcoin server
  */
@@ -41,16 +40,14 @@ const fs = require("fs");
 const ms = require("ms");
 const bot = new Discord.Client({disableEveryone: true});
 
-// For errors
-require("longjohn");
-
 // Connect to the database
 const { Client } = require("pg");
 
 const client = new Client({
-  connectionString: `${botconfig.connectionURL || process.env.DATABASE_URL}?ssl=true`
+  connectionString: `${botconfig.connectionURL || process.env.DATABASE_URL}`,
+  ssl: true
 })
-client.connect();
+client.connect()
 
 // Set up Mitcoin information
 let mitcoinInfo = {
@@ -64,14 +61,6 @@ let mitcoinInfo = {
 client.query("SELECT * FROM value", (err, res) => {
   mitcoinInfo.value = (res.rows[0].value);
 })
-client.query("SELECT * FROM balances", (err, res) => {
-  res.rows.forEach(b => {
-    mitcoinInfo.balances[b.id] = {
-      balance: b.mitcoin,
-      money: b.money
-    }
-  })
-})
 client.query("SELECT * FROM blacklist", (err, res) => {
   res.rows.forEach(b => {
     mitcoinInfo.blacklist.push(b.id);
@@ -81,7 +70,20 @@ client.query("SELECT * FROM history", (err, res) => {
   res.rows.forEach(h => {
     mitcoinInfo.history.push(h.value);
   })
+  client.end();
 })
+client.query("SELECT * FROM balances", (err, res) => {
+  res.rows.forEach(b => {
+    mitcoinInfo.balances[b.id] = {
+      balance: b.mitcoin,
+      money: b.money
+    }
+  })
+})
+if (Object.keys(mitcoinInfo.balances).length <= 0) {
+  console.log("Database not loaded properly?");
+  process.exit();
+}
 
 // For creating graphs
 const ChartjsNode = require("chartjs-node");
@@ -99,6 +101,9 @@ let MTC = "<:MTC:452553160557461544>";
 // How long it takes for Mitcoin's value to automatically fluctuate
 let fluctuationTime = ms("5m");
 
+// Maximum number of history values to be saved
+let maxHistory = 2000;
+
 // Automatically fluctuate Mitcoin's value
 setInterval(function() {
   // Calculate the random fluctuation
@@ -107,20 +112,23 @@ setInterval(function() {
   // Change Mitcoin's value
   mitcoinInfo.value *= (fluctuation + 100) / 100;
   mitcoinInfo.history.push(parseFloat(mitcoinInfo.value.toFixed(3)));
+  mitcoinInfo.history.splice(0, mitcoinInfo.history.length - maxHistory);
+  
   bot.user.setActivity(`MTC Value: ${mitcoinInfo.value.toFixed(3)} | m/help`);
 
   // Save new value to the database
-  client.query("DELETE FROM history");
   client.query(`UPDATE value SET value = ${mitcoinInfo.value}`);
-  for (let i in mitcoinInfo.history) {
-    if (i < 9999 - mitcoinInfo.blacklist.length - Object.keys(mitcoinInfo.balances).length) client.query(`INSERT INTO history VALUES(${i}, ${mitcoinInfo.history[i]})`);
-  }
+  client.query(`INSERT INTO history VALUES(${mitcoinInfo.history.length - 1}, ${mitcoinInfo.history[mitcoinInfo.history.length - 1]})`);
 }, fluctuationTime);
 
 // When the bot is loaded
 bot.on("ready", async () => {
   console.log(`${bot.user.username} is online in ${bot.guilds.size} servers!`);
   bot.user.setActivity(`MTC Value: ${mitcoinInfo.value.toFixed(3)} | m/help`);
+  bot.user.setStatus("online");
+
+  // Log a backup of all Mitcoin info
+  console.log(JSON.stringify(mitcoinInfo));
 });
 
 // Bot uptime
@@ -405,12 +413,9 @@ const commands = {
       // If there isn't any history and thus nothing to display
       if (mitcoinInfo.history.length <= 0) return message.channel.send("There is no value history yet!");
 
-      // The maximum amount of fluctuations that can be shown
-      let maxFluctuations = 2000;
-
       // How many fluctuations to be shown
       if (args[0] && (!parseInt(args[0]) || args[0] < 1)) return message.channel.send("Specify a valid number of fluctuations");
-      let fluctuations = Math.min(Math.floor(args[0]) || maxFluctuations, maxFluctuations);
+      let fluctuations = Math.min(Math.floor(args[0]) || maxHistory, maxHistory);
       if (fluctuations > mitcoinInfo.history.length - 1) fluctuations = mitcoinInfo.history.length - 1;
 
       // Find the data in Mitcoin value history

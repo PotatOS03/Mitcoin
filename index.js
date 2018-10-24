@@ -868,5 +868,4 @@ bot.on("message", async message => {
 });
 
 // Log in to the Discord bot
-if (require("./token.json")) return bot.login(require("./token.json").token);
-bot.login(process.env.BOT_TOKEN);
+bot.login(botconfig.token || process.env.BOT_TOKEN);

@@ -377,6 +377,9 @@ const commands = {
 
           // Determine who reacted to the message
           let reacters = msg.reactions.get(MTC.split(/<:|>/)[1]);
+          
+          // If no one reacted
+          if (!reacters) return message.channel.send("**No one reacted to the giveaway!**\n__Make sure to react before the time runs out.__");
 
           // Choose a random winner
           let winner = Math.floor(Math.random() * reacters.count);
@@ -387,9 +390,6 @@ const commands = {
             if (!r.bot && winner <= 0 && winUser === 0) winUser = r;
             winner--;
           })
-          
-          // If no one reacted
-          if (winUser === 0) return message.channel.send("**No one reacted to the giveaway!**\n__Make sure to react before the time runs out.__");
 
           // If the winner doesn't have a Mitcoin balance yet, set it up
           if (!mitcoinInfo.balances[winUser.id]) mitcoinInfo.balances[winUser.id] = {

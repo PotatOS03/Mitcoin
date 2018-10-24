@@ -108,13 +108,16 @@ setInterval(function() {
   // Change Mitcoin's value
   mitcoinInfo.value *= (fluctuation + 100) / 100;
   mitcoinInfo.history.push(parseFloat(mitcoinInfo.value.toFixed(3)));
-  mitcoinInfo.history.splice(0, mitcoinInfo.history.length - maxHistory);
+  mitcoinInfo.history.splice(0, mitcoinInfo.history.length - maxHistory - 1);
   
   bot.user.setActivity(`MTC Value: ${mitcoinInfo.value.toFixed(3)} | m/help`);
 
   // Save new value to the database
+  client.query("DELETE FROM history");
   client.query(`UPDATE value SET value = ${mitcoinInfo.value}`);
-  client.query(`INSERT INTO history VALUES(${mitcoinInfo.history.length - 1}, ${mitcoinInfo.history[mitcoinInfo.history.length - 1]})`);
+  for (let i in mitcoinInfo.history) {
+    client.query(`INSERT INTO history VALUES(${i}, ${mitcoinInfo.history[i]})`);
+  }
 }, fluctuationTime);
 
 // When the bot is loaded
@@ -260,17 +263,14 @@ const commands = {
     run: (message, args) => {
       let complaint = args.join(" ");
       if (!complaint) return message.channel.send("Specify a message");
-
       // Log channel to send the complain in
       let complaintChannel = bot.channels.get(logs);
-
       // Send the complaint in an embed
       let complaintEmbed = new Discord.RichEmbed()
       .setColor("#ff9900")
       .setAuthor(message.author.username, message.author.displayAvatarURL)
       .addField("New complaint", complaint)
       .setTimestamp(message.createdAt);
-
       // Confirm that the complain was sent successfully
       message.channel.send("✅ Your complaint has been sent and will be viewed shortly");
       complaintChannel.send(complaintEmbed);
@@ -665,7 +665,7 @@ const commands = {
       if (leaderboard[1] && leaderboard[1].balance + leaderboard[1].money > 0) lEmbed.addField("Second Place", `${usernames.usernames[1]}#${usernames.discriminators[1]} | ${(type === 0 ? leaderboard[1].balance : type === 1 ? leaderboard[1].money : leaderboard[1].money + leaderboard[1].balance * mitcoinInfo.value).toFixed(2)} ${type === 0 ? MTC : ":dollar:"}`)
       if (leaderboard[2] && leaderboard[2].balance + leaderboard[2].money > 0) lEmbed.addField("Third Place", `${usernames.usernames[2]}#${usernames.discriminators[2]} | ${(type === 0 ? leaderboard[2].balance : type === 1 ? leaderboard[2].money : leaderboard[2].money + leaderboard[2].balance * mitcoinInfo.value).toFixed(2)} ${type === 0 ? MTC : ":dollar:"}`)
       if (leaderboard[3] && leaderboard[3].balance + leaderboard[3].money > 0) lEmbed.addField("Fourth Place", `${usernames.usernames[3]}#${usernames.discriminators[3]} | ${(type === 0 ? leaderboard[3].balance : type === 1 ? leaderboard[3].money : leaderboard[3].money + leaderboard[3].balance * mitcoinInfo.value).toFixed(2)} ${type === 0 ? MTC : ":dollar:"}`)
-      if (leaderboard[4] && leaderboard[4].balance + leaderboard[4].money > 0) lEmbed.addField("Fifth Place", `${usernames.usernames[4]}#${usernames.discriminators[4]} | ${(type === 0 ? leaderboard[4].balance : type === 1 ? leaderboard[4].money : leaderboard[4].money + leaderboard[4].balance * mitcoinInfo.value).toFixed(2)} ${type === 0 ? MTC : ":dollar:"}`)
+      if (leaderboard[4] && leaderboard[4].balance + leaderboard[4].money > 0) lEmbed.addField("Fifth Place", `${usernames.usernames[4]}#${usernames.discriminators[4]} | ${(type === 0 ? leaderboard[0].balance : type === 1 ? leaderboard[4].money : leaderboard[4].money + leaderboard[4].balance * mitcoinInfo.value).toFixed(2)} ${type === 0 ? MTC : ":dollar:"}`)
       if (userPlace > 5 && leaderboard[userPlace - 1].balance > 0) lEmbed.addField("Your Place", userPlace)
       lEmbed.setTimestamp(message.createdAt);
   
@@ -868,4 +868,5 @@ bot.on("message", async message => {
 });
 
 // Log in to the Discord bot
+if (require("./token.json")) return bot.login(require("./token.json").token);
 bot.login(process.env.BOT_TOKEN);

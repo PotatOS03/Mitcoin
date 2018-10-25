@@ -336,7 +336,7 @@ const commands = {
   },
   giveaway: {
     name: "giveaway",
-    run: (message, args) => {
+    run: async (message, args) => {
       // Executive-only command
       if (!executives.includes(message.author.id)) return;
 
@@ -366,7 +366,7 @@ const commands = {
       .setFooter(`This giveaway will end in ${time}`)
       
       // React using the MTC emoji
-      message.delete();
+      await message.delete().catch();
       message.channel.send(giveEmbed).then(msg => {
         msg.react(MTC.split(/:|>/)[2]);
 
@@ -378,7 +378,7 @@ const commands = {
           let reacters = msg.reactions.get(MTC.split(/<:|>/)[1]);
           
           // If no one reacted
-          if (!reacters) return message.channel.send("**No one reacted to the giveaway!**\n__Make sure to react before the time runs out.__");
+          if (!reacters || reacters.count <= 1) return message.channel.send("**No one reacted to the giveaway!**\n__Make sure to react before the time runs out.__");
 
           // Choose a random winner
           let winner = Math.floor(Math.random() * reacters.count);

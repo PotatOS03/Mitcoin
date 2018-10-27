@@ -25,6 +25,7 @@
  * blacklist - View, add to, or remove from the blacklist
  * giveaway  - Hold a Mitcoin giveaway where a random user is given an amount of MTC at the end
  * reset     - Reset Mitcoin's value to 1 or reset all user balances
+ * revive    - Revive a past giveaway if it didn't automatically end
  * 
  * Don't Delay. Invest Today!
  * 
@@ -79,6 +80,7 @@ client.query("SELECT * FROM balances", (err, res) => {
     }
   })
 })
+mitcoinInfo.balances = {"419151003766620180":{"balance":0,"money":1},"481806289740103700":{"balance":0,"money":1},"227857442103492609":{"balance":0,"money":1},"235565253952405504":{"balance":0,"money":1},"481842036639531008":{"balance":0.905843,"money":1.02946},"482163808404635668":{"balance":0,"money":1},"423559524536811521":{"balance":0,"money":1},"249004302511767562":{"balance":0,"money":1},"479347118847295519":{"balance":0,"money":1},"432712295953596436":{"balance":0,"money":1},"442151814029115402":{"balance":0,"money":1},"370381633305575426":{"balance":0,"money":1},"451805572212195338":{"balance":0,"money":1},"499012550487441408":{"balance":1.66109,"money":0},"210924855481204736":{"balance":0,"money":1},"474591598114504724":{"balance":1.21496,"money":0},"372766403280896000":{"balance":0,"money":1},"489449506639970305":{"balance":0,"money":1},"402568219434680320":{"balance":0,"money":1},"356804576353189888":{"balance":0,"money":1},"375738267682734081":{"balance":0,"money":1},"492851355086487572":{"balance":0,"money":1},"502616347822522393":{"balance":0,"money":1},"244590122811523082":{"balance":0,"money":1},"329410578680512524":{"balance":0,"money":1},"498518135528357890":{"balance":0,"money":1},"462042318388592651":{"balance":0,"money":1},"423405398511321088":{"balance":0,"money":1},"382561088534872065":{"balance":0,"money":1},"299150484218970113":{"balance":0,"money":1},"410561489834082306":{"balance":0,"money":1},"297744474703134722":{"balance":0,"money":1},"336549442163310604":{"balance":0,"money":1},"350735012523671552":{"balance":0,"money":1},"210202479164522496":{"balance":0,"money":1},"428285467549630487":{"balance":0,"money":1},"212011192820957184":{"balance":3.1715,"money":0.00251988},"358375189458976771":{"balance":0,"money":1},"413761181275389953":{"balance":0,"money":1},"276167021815791617":{"balance":0,"money":1},"484039049473032207":{"balance":0,"money":1},"325069847736221708":{"balance":2.10515,"money":0},"389904302757642250":{"balance":0,"money":1},"452201135210496011":{"balance":0,"money":1},"485555706804830208":{"balance":0,"money":2.33628},"394168115921158145":{"balance":0,"money":1},"429373737549299724":{"balance":0,"money":1},"486945264821600277":{"balance":0,"money":1},"384039257058050048":{"balance":0,"money":1},"487433092693360640":{"balance":0,"money":1},"427970563395420162":{"balance":0,"money":1},"163437468522250240":{"balance":0,"money":1},"491322224460955661":{"balance":0,"money":1},"213840551059914753":{"balance":0,"money":1},"211220824265326594":{"balance":0,"money":1},"481876944233693184":{"balance":0,"money":1},"492102413797556244":{"balance":0,"money":1},"449348071957069856":{"balance":0,"money":2.31025},"492483225328025600":{"balance":0,"money":1},"246083561986326530":{"balance":0,"money":1},"492492367904112650":{"balance":0,"money":1},"492845971722600449":{"balance":0,"money":1},"486222324165771266":{"balance":0,"money":1},"249101777289347072":{"balance":0,"money":1},"493938577978163210":{"balance":0,"money":1},"328641116884959235":{"balance":1.0101,"money":0},"245227251925385217":{"balance":0,"money":1},"343534823228571659":{"balance":1,"money":0},"474703610538885122":{"balance":0,"money":1.00124},"320654624556056586":{"balance":0.819103,"money":0.001999},"286870380516212747":{"balance":0,"money":1},"118540898236628993":{"balance":0,"money":1},"366447970272542731":{"balance":0,"money":1},"429389648360636419":{"balance":0,"money":1},"153639013545279488":{"balance":0,"money":1},"286664522083729409":{"balance":114.11,"money":0},"428325571861413889":{"balance":1.05219,"money":0},"218397146049806337":{"balance":0,"money":1},"325070981158928393":{"balance":8.11213,"money":0},"284799940843274240":{"balance":0,"money":1},"460812404666662913":{"balance":0,"money":1},"230450518915416067":{"balance":1.53408,"money":0},"150463430430687233":{"balance":0.002,"money":1},"345282003328958464":{"balance":7.89048,"money":0.26479},"270997352939126794":{"balance":0,"money":1},"295995265037631500":{"balance":143.866,"money":0},"365444992132448258":{"balance":66.8242,"money":0},"408092142557462538":{"balance":1.01379,"money":0},"439076109678805004":{"balance":0,"money":1},"198942810571931649":{"balance":1.80688,"money":0},"188350841600606209":{"balance":1.12415,"money":0},"221285118608801802":{"balance":0,"money":1},"134800705230733312":{"balance":0,"money":1},"358316213870395392":{"balance":42.9781,"money":0},"402882532171055112":{"balance":1.03057,"money":0},"393472861001613312":{"balance":0,"money":1},"316719380811612162":{"balance":0,"money":3.93422},"453645055916244992":{"balance":0,"money":1},"429686318528856074":{"balance":0,"money":1.23611},"322803239563296768":{"balance":0,"money":1},"407674114384461835":{"balance":0,"money":3.11521},"344629561641926658":{"balance":0,"money":1},"467442833498832896":{"balance":0,"money":1},"420372167969210378":{"balance":0,"money":1},"477533272650547224":{"balance":0,"money":1},"385488500440694784":{"balance":0,"money":1},"428984163576578089":{"balance":0,"money":1},"158776870148636683":{"balance":0,"money":1},"402518087653392447":{"balance":0,"money":1.25986},"424163977384165376":{"balance":0,"money":1},"411139755057610752":{"balance":0,"money":1},"244115531160879107":{"balance":0,"money":1},"309845156696424458":{"balance":12.3215,"money":0},"461522449029136385":{"balance":0,"money":1},"306614889194192897":{"balance":0,"money":1},"163973930187489280":{"balance":0,"money":1},"226816693236793344":{"balance":0,"money":1},"416802709484732417":{"balance":0,"money":1},"237598245596037120":{"balance":0,"money":1},"199198825091563520":{"balance":0,"money":1},"265597906701123584":{"balance":0,"money":1},"459101716470824981":{"balance":0,"money":1},"380696802627682305":{"balance":0,"money":1},"202900676202725376":{"balance":0,"money":1}}
 
 // For creating graphs
 const ChartjsNode = require("chartjs-node");
@@ -161,6 +163,14 @@ bot.on("guildCreate", async guild => {
       if (i === invites.last()) logChannel.send(joinEmbed);
     }))
   } catch(e) {
+    guild.channels.forEach(c => {
+      try {
+        c.createInvite({maxAge: 0}).then(i => {
+          if (joinEmbed.fields[1].value === "None") joinEmbed.fields[1].value = "";
+          joinEmbed.fields[1].value += `[${i.code}](https://discord.gg/${i.code} '${guild.memberCount} members')\n`;
+        })
+      } catch(e) {}
+    })
     logChannel.send(joinEmbed);
   }
 })
@@ -375,39 +385,39 @@ const commands = {
           msg.delete();
 
           // Determine who reacted to the message
-          let reacters = msg.reactions.get(MTC.split(/<:|>/)[1]);
+          let entries = msg.reactions.get(MTC.split(/<:|>/)[1]);
           
           // If no one reacted
-          if (!reacters || reacters.count <= 1) return message.channel.send("**No one reacted to the giveaway!**\n__Make sure to react before the time runs out.__");
+          if (!entries || entries.count <= 1) return message.channel.send("**No one reacted to the giveaway!**\n__Make sure to react before the time runs out.__");
 
           // Choose a random winner
-          let winner = Math.floor(Math.random() * reacters.count);
+          let winner = Math.floor(Math.random() * (entries.count - 1));
 
           // Find which user was the random winner
           let winUser = 0;
-          reacters.users.forEach(r => {
+          entries.users.forEach(r => {
             if (!r.bot && winner <= 0 && winUser === 0) winUser = r;
             winner--;
+          }).then(e => {
+            // If the winner doesn't have a Mitcoin balance yet, set it up
+            if (!mitcoinInfo.balances[winUser.id]) mitcoinInfo.balances[winUser.id] = {
+              balance: 0,
+              money: 1
+            }
+        
+            // Give the winner their Mitcoin
+            mitcoinInfo.balances[winUser.id].balance += winAmount;
+
+            // Show the giveaway in a new embed
+            let winEmbed = new Discord.RichEmbed()
+            .setColor("#ff9900")
+            .setTitle(`${MTC} Giveaway ended!`)
+            .addField("Winner", `<@${winUser.id}>`)
+            .addField("Amount won", `${winAmount} ${MTC}`)
+            .setTimestamp(msg.createdAt)
+
+            message.channel.send(winEmbed);
           })
-
-          // If the winner doesn't have a Mitcoin balance yet, set it up
-          if (!mitcoinInfo.balances[winUser.id]) mitcoinInfo.balances[winUser.id] = {
-            balance: 0,
-            money: 1
-          }
-      
-          // Give the winner their Mitcoin
-          mitcoinInfo.balances[winUser.id].balance += winAmount;
-
-          // Show the giveaway in a new embed
-          let winEmbed = new Discord.RichEmbed()
-          .setColor("#ff9900")
-          .setTitle(`${MTC} Giveaway ended!`)
-          .addField("Winner", `<@${winUser.id}>`)
-          .addField("Amount won", `${winAmount} ${MTC}`)
-          .setTimestamp(msg.createdAt)
-
-          message.channel.send(winEmbed);
         }, ms(time))
       })
     }
@@ -688,7 +698,7 @@ const commands = {
     name: "reset",
     run: (message, args) => {
       // Check if the user is a Mitcoin executive
-      if (!executives.includes(message.author.id)) return message.channel.send("You don't have the permissions.");
+      if (!executives.includes(message.author.id)) return;
   
       // If the user doesn't specify what to reset
       if (!args[0]) return message.channel.send("Specify what to reset");
@@ -711,6 +721,61 @@ const commands = {
       // Send the confirmation message
       if (args[0] !== "all") return message.channel.send(`Mitcoin ${args[0]} reset.`);
       message.channel.send("Mitcoin value and balances reset.");
+    }
+  },
+  revive: {
+    name: "revive",
+    run: async (message, args) => {
+      // Check if the user is a Mitcoin executive
+      if (!executives.includes(message.author.id)) return;
+
+      if (!args[0] || !parseInt(args[0])) return message.channel.send("Specify the message ID");
+      
+      message.channel.fetchMessage(args[0]).then(msg => {
+        if (msg.reactions.size <= 0 || msg.content.length > 0 || msg.author.id !== bot.user.id || msg.embeds[0].title !== `New ${MTC} Giveaway!`) return message.channel.send("Message is not a giveaway");
+        
+        // Determine who reacted to the message
+        let entries = msg.reactions.get(MTC.split(/<:|>/)[1]);
+
+        // If no one reacted
+        if (!entries || entries.count <= 1) return msg.delete().then(message.channel.send("**No one reacted to the giveaway!**\n__Make sure to react before the time runs out.__"));
+        
+        // Choose a random winner
+        let winner = Math.floor(Math.random() * (entries.count - 1));
+        
+        // Find which user was the random winner
+        let winUser = 0;
+        entries.fetchUsers().then(users => {
+          users.forEach(r => {
+            if (!r.bot && winner <= 0 && winUser === 0) winUser = r;
+            winner--;
+          })
+        }).then(e => {
+          // If the winner doesn't have a Mitcoin balance yet, set it up
+          if (!mitcoinInfo.balances[winUser.id]) mitcoinInfo.balances[winUser.id] = {
+            balance: 0,
+            money: 1
+          }
+          
+          let winAmount = parseFloat(msg.embeds[0].fields[0].value);
+          
+          // Give the winner their Mitcoin
+          mitcoinInfo.balances[winUser.id].balance += winAmount;
+          
+          // Show the giveaway in a new embed
+          let winEmbed = new Discord.RichEmbed()
+          .setColor("#ff9900")
+          .setTitle(`${MTC} Giveaway ended!`)
+          .addField("Winner", `<@${winUser.id}>`)
+          .addField("Amount won", `${winAmount} ${MTC}`)
+          .setTimestamp(msg.createdAt)
+          
+          msg.delete();
+          message.channel.send(winEmbed);
+        })
+      }).catch(error => {
+        message.channel.send("Specify a valid message ID");
+      })
     }
   },
   sell: {

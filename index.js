@@ -53,7 +53,7 @@ client.connect()
 // Set up Mitcoin information
 let mitcoinInfo = {
   value: 1,
-  balances: {}
+  balances: {},
   blacklist: [],
   history: []
 };

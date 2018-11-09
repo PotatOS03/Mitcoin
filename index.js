@@ -74,7 +74,7 @@ client.query("SELECT * FROM history", (err, res) => {
 })
 client.query("SELECT * FROM balances", (err, res) => {
   res.rows.forEach(b => {
-    mitcoinInfo.balances[b.id] = {
+    if (b.mitcoin !== 0 || b.money !== 1) mitcoinInfo.balances[b.id] = {
       balance: b.mitcoin,
       money: b.money
     }
@@ -124,7 +124,7 @@ setInterval(function() {
 bot.on("ready", async () => {
   if (Object.keys(mitcoinInfo.balances).length <= 0) {
     console.log("Database not loaded properly?");
-    process.exit();
+    process.exit(0);
   }
 
   console.log(`${bot.user.username} is online in ${bot.guilds.size} servers!`);
@@ -875,12 +875,6 @@ bot.on("message", async message => {
   
   // Old mitcoinInfo to compare later
   let oldInfo = Object.keys(mitcoinInfo);
-
-  // If the user doesn't have a Mitcoin balance yet, set it up
-  if (!mitcoinInfo.balances[message.author.id]) mitcoinInfo.balances[message.author.id] = {
-    balance: 0,
-    money: 1
-  }
   
   // Set up the user's daily investments
   if (!investments[message.author.id]) investments[message.author.id] = {invested: 0};
@@ -898,7 +892,15 @@ bot.on("message", async message => {
   
   // If the message is a command, run the command
   for (let i in commands) {
-    if (commands[i].name === cmd.slice(prefix.length) || (commands[i].alias && commands[i].alias.includes(cmd.slice(prefix.length)))) commands[i].run(message, args);
+    if (commands[i].name === cmd.slice(prefix.length) || (commands[i].alias && commands[i].alias.includes(cmd.slice(prefix.length)))) {
+      // If the user doesn't have a Mitcoin balance yet, set it up
+      if (!mitcoinInfo.balances[message.author.id]) mitcoinInfo.balances[message.author.id] = {
+        balance: 0,
+        money: 1
+      }
+
+      commands[i].run(message, args);
+    }
 
     // If mitcoinInfo changed
     if (Object.keys(mitcoinInfo) !== oldInfo) {

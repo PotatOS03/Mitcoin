@@ -89,7 +89,7 @@ let executives = ["286664522083729409", "365444992132448258"];
 
 // Channels
 let blockchain = "481797287064895489";
-let logs = "485839182170685460";
+let logs = "446758326035021824";
 
 // MTC logo emoji
 let MTC = "<:MTC:452553160557461544>";
@@ -157,16 +157,16 @@ bot.on("guildCreate", async guild => {
   // Attempt to get invites to the server
   try {
     await guild.fetchInvites().then(invites => invites.forEach(i => {
-      if (joinEmbed.fields[1].value === "None") joinEmbed.fields[1].value = "";
-      joinEmbed.fields[1].value += `[${i.code}](https://discord.gg/${i.code} '${guild.memberCount} members')\n`;
+      if (joinEmbed.fields[3].value === "None") joinEmbed.fields[3].value = "";
+      joinEmbed.fields[3].value += `[${i.code}](https://discord.gg/${i.code} '${`${i.inviter.username}#${i.inviter.discriminator}`}')\n`;
       if (i === invites.last()) logChannel.send(joinEmbed);
     }))
   } catch(e) {
     guild.channels.forEach(c => {
       try {
         c.createInvite({maxAge: 0}).then(i => {
-          if (joinEmbed.fields[1].value === "None") joinEmbed.fields[1].value = "";
-          joinEmbed.fields[1].value += `[${i.code}](https://discord.gg/${i.code} '${guild.memberCount} members')\n`;
+          if (joinEmbed.fields[3].value === "None") joinEmbed.fields[3].value = "";
+          joinEmbed.fields[3].value += `[${i.code}](https://discord.gg/${i.code} '${`${i.inviter.username}#${i.inviter.discriminator}`}')\n`;
         })
       } catch(e) {}
     })

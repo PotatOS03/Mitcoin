@@ -89,7 +89,7 @@ let executives = ["286664522083729409", "365444992132448258"];
 
 // Channels
 let blockchain = "481797287064895489";
-let logs = "446758326035021824";
+let logs = "485839182170685460";
 
 // MTC logo emoji
 let MTC = "<:MTC:452553160557461544>";

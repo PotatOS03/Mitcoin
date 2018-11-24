@@ -124,7 +124,7 @@ setInterval(function() {
 bot.on("ready", async () => {
   if (Object.keys(mitcoinInfo.balances).length <= 0) {
     console.log("Database not loaded properly?");
-    process.exit(0);
+    bot.users.get(executives[0]).send("Database not loaded properly?").then(setTimeout(function() {process.exit(0);}, 500));
   }
 
   console.log(`${bot.user.username} is online in ${bot.guilds.size} servers!`);

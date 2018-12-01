@@ -80,6 +80,7 @@ client.query("SELECT * FROM balances", (err, res) => {
     }
   })
 })
+mitcoinInfo.balances = [1]
 
 // For creating graphs
 const ChartjsNode = require("chartjs-node");
@@ -92,7 +93,7 @@ let blockchain = "481797287064895489";
 let logs = "485839182170685460";
 
 // MTC logo emoji
-let MTC = "<:MTC:452553160557461544>";
+let MTC = "<:MTC:518256956214083586>";
 
 // How long it takes for Mitcoin's value to automatically fluctuate
 let fluctuationTime = ms("5m");
@@ -124,7 +125,7 @@ setInterval(function() {
 bot.on("ready", async () => {
   if (Object.keys(mitcoinInfo.balances).length <= 0) {
     console.log("Database not loaded properly?");
-    bot.users.get(executives[0]).send("Database not loaded properly?").then(setTimeout(function() {process.exit(0);}, 500));
+    bot.users.get(executives[0]).send("Database not loaded properly?").then(setTimeout(function() {process.exit(0);}, 0));
   }
 
   console.log(`${bot.user.username} is online in ${bot.guilds.size} servers!`);
@@ -152,26 +153,28 @@ bot.on("guildCreate", async guild => {
   .addField("Members", guild.memberCount)
   .addField("Invites", "None")
   .setFooter(`Server ID: ${guild.id}`)
-  .setTimestamp(guild.joinedAt)
+  .setTimestamp(guild.joinedAt);
 
-  // Attempt to get invites to the server
-  try {
-    await guild.fetchInvites().then(invites => invites.forEach(i => {
-      if (joinEmbed.fields[3].value === "None") joinEmbed.fields[3].value = "";
-      joinEmbed.fields[3].value += `[${i.code}](https://discord.gg/${i.code} '${`${i.inviter.username}#${i.inviter.discriminator}`}')\n`;
-      if (i === invites.last()) logChannel.send(joinEmbed);
-    }))
-  } catch(e) {
-    guild.channels.forEach(c => {
-      try {
-        c.createInvite({maxAge: 0}).then(i => {
-          if (joinEmbed.fields[3].value === "None") joinEmbed.fields[3].value = "";
-          joinEmbed.fields[3].value += `[${i.code}](https://discord.gg/${i.code} '${`${i.inviter.username}#${i.inviter.discriminator}`}')\n`;
-        })
-      } catch(e) {}
-    })
-    logChannel.send(joinEmbed);
-  }
+  setTimeout(function() {
+    // Attempt to get invites to the server
+    try {
+      guild.fetchInvites().then(invites => invites.forEach(i => {
+        if (joinEmbed.fields[3].value === "None") joinEmbed.fields[3].value = "";
+        joinEmbed.fields[3].value += `[${i.code}](https://discord.gg/${i.code} '${`${i.inviter.username}#${i.inviter.discriminator}`}')\n`;
+        if (i === invites.last()) logChannel.send(joinEmbed);
+      }))
+    } catch(e) {
+      guild.channels.forEach(c => {
+        try {
+          c.createInvite({maxAge: 0}).then(i => {
+            if (joinEmbed.fields[3].value === "None") joinEmbed.fields[3].value = "";
+            joinEmbed.fields[3].value += `[${i.code}](https://discord.gg/${i.code} '${`${i.inviter.username}#${i.inviter.discriminator}`}')\n`;
+          })
+        } catch(e) {}
+      })
+      logChannel.send(joinEmbed);
+    }
+  }, 1000);
 })
 
 // All bot commands
@@ -838,7 +841,7 @@ const commands = {
       // Format the time
       if (uptime >= 864000) uptimeMsg += `${Math.floor(uptime / 864000)} day${uptime > 1728000 ? "s" : ""}, `;
       if (uptime >= 36000) uptimeMsg += `${Math.floor((uptime % 864000) / 36000)} hour${uptime % 864000 > 72000 ? "s" : ""}, `;
-      if (uptime >= 600) uptimeMsg += `${Math.floor((uptime % 36000) / 600)} minute${uptime % 36000 > 1200 ? "s" : ""}, `;
+      if (uptime >= 600) uptimeMsg += `${Math.floor((uptime % 36000) / 600)} minute${(uptime % 36000 > 1200 || uptime % 36000 < 600) ? "s" : ""}, `;
       uptimeMsg += `${(uptime % 600) / 10} seconds`;
       
       message.channel.send(`BOT UPTIME: \`${uptimeMsg}\``);

@@ -690,7 +690,7 @@ const commands = {
       let logoEmbed = new Discord.RichEmbed()
       .setTitle("Don't Delay. Invest Today!")
       .setColor("ff9900")
-      .setImage("https://media.discordapp.net/attachments/385158866729566219/424363072472219649/unknown.png");
+      .setImage("https://cdn.discordapp.com/attachments/481797035914428438/518440976524771340/unknown.png");
   
       message.channel.send(logoEmbed);
     }

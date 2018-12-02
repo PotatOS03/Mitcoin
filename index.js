@@ -142,6 +142,7 @@ setInterval(e => uptime++, 100);
 // Send an alert when the bot joins a new server
 bot.on("guildCreate", async guild => {
   let logChannel = bot.channels.get(logs);
+  console.log(`NEW SERVER JOINED: ${guild.name}`)
 
   let joinEmbed = new Discord.RichEmbed()
   .setThumbnail(guild.iconURL)

@@ -602,7 +602,7 @@ const commands = {
   },
   invite: {
     name: "invite",
-    //desc: "Join Mitcoin's server or invite the bot",
+    desc: "Join Mitcoin's server or invite the bot",
     run: (message, args) => {
       // How many humans are in the Mitcoin server
       let serverMembers = 0;
@@ -611,8 +611,8 @@ const commands = {
       })
 
       // Send an embed for Mitcoin Bot's OAuth link and Mitcoin server invite
-      let inviteEmbed = new Discord.RichEmbed().setColor("ff9900").addField("Invite Mitcoin Bot", `Not yet implemented`).addField("Official Mitcoin Server", `Not yet implemented`);
-      //message.channel.send(inviteEmbed);
+      let inviteEmbed = new Discord.RichEmbed().setColor("ff9900").addField("Invite Mitcoin Bot", `[OAuth2 link](https://discordapp.com/api/oauth2/authorize?client_id=430468476038152194&permissions=1878392257&scope=bot 'Mitcoin used in ${bot.guilds.size} servers')`).addField("Official Mitcoin Server", `[yhV8bqz](https://discord.gg/yhV8bqz '${serverMembers} members')`);
+      message.channel.send(inviteEmbed);
     }
   },
   leaderboard: {

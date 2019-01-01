@@ -73,7 +73,7 @@ let mitcoinInfo = {
 
 // Load Mitcoin information from the database
 client.query("SELECT * FROM value", (err, res) => {
-  mitcoinInfo.value = (res.rows[0].value);
+  mitcoinInfo.value = res.rows[0].value;
   mitcoinInfo.demand = res.rows[0].demand;
 })
 client.query("SELECT * FROM blacklist", (err, res) => {
@@ -126,8 +126,8 @@ bot.on("ready", async () => {
   }
 
   console.log(`${bot.user.username} is online in ${bot.guilds.size} servers!`);
-  if (maintenance) bot.user.setActivity(`MTC Value: ${mitcoinInfo.value.toFixed(3)} | m/help`);
-  else bot.user.setActivity("Under maintenance");
+  if (maintenance) bot.user.setActivity("Under maintenance");
+  else bot.user.setActivity(`MTC Value: ${mitcoinInfo.value.toFixed(3)} | m/help`);
 
   // Log a backup of all Mitcoin info
   console.log(JSON.stringify(mitcoinInfo));

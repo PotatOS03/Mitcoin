@@ -42,7 +42,7 @@ const ms = require("ms");
 const bot = new Discord.Client({disableEveryone: true});
 
 // Some other specific things to set up
-let maintenance = true; // Whether the bot is in maintenance mode
+let maintenance = false; // Whether the bot is in maintenance mode
 const executives = ["286664522083729409", "365444992132448258"]; // Mitcoin executives PotatOS and Mitrue
 const blockchain = "481797287064895489"; // Blockchain channel ID
 const logs = "485839182170685460"; // Logs channel ID
@@ -71,13 +71,8 @@ let mitcoinInfo = {
   history: []
 };
 
-client.query("DROP TABLE value");
-client.query("CREATE TABLE value (value NUMERIC, demand NUMERIC)");
-client.query("INSERT INTO value VALUES (0.714, 0)");
-
 // Load Mitcoin information from the database
 client.query("SELECT * FROM value", (err, res) => {
-  console.log(res.rows);
   mitcoinInfo.value = res.rows[0].value;
   mitcoinInfo.demand = res.rows[0].demand;
 })

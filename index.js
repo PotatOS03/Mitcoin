@@ -24,15 +24,24 @@
  * COMMANDS - Executives only
  * blacklist - View, add to, or remove from the blacklist
  * giveaway  - Hold a Mitcoin giveaway where a random user is given an amount of MTC at the end
- * reset     - Reset Mitcoin's value to 1 or reset all user balances
  * revive    - Revive a past giveaway if it didn't automatically end
  * 
  * Don't Delay. Invest Today!
  * 
  * TO DO
  * Add DM commands
- * Add events for the Mitcoin server
+ * Add features for the Mitcoin server
  */
+
+
+// Some specific things to set up
+let maintenance = true; // Whether the bot is in maintenance mode
+const executives = ["286664522083729409", "365444992132448258"]; // Mitcoin executives PotatOS and Mitrue
+const blockchain = "481797287064895489"; // Blockchain channel ID
+const logs = "485839182170685460"; // Logs channel ID
+const MTC = "<:MTC:518256956214083586>"; // Mitcoin logo emoji
+let fluctuationTime = ms("5m"); // How long it takes for Mitcoin's value to automatically fluctuate
+let maxHistory = 2000; // Maximum number of history values to be saved
 
 // Bot setup
 const botconfig = require("./botconfig.json");
@@ -41,6 +50,9 @@ const fs = require("fs");
 const ms = require("ms");
 const bot = new Discord.Client({disableEveryone: true});
 
+// For creating graphs
+const ChartjsNode = require("chartjs-node");
+
 // Connect to the database
 const { Client } = require("pg");
 
@@ -48,11 +60,12 @@ const client = new Client({
   connectionString: `${botconfig.connectionURL || process.env.DATABASE_URL}`,
   ssl: true
 })
-client.connect()
+client.connect();
 
 // Set up Mitcoin information
 let mitcoinInfo = {
   value: 1,
+  demand: 0,
   balances: {},
   blacklist: [],
   history: []
@@ -60,8 +73,8 @@ let mitcoinInfo = {
 
 // Load Mitcoin information from the database
 client.query("SELECT * FROM value", (err, res) => {
-  console.log(res.rows);
   mitcoinInfo.value = (res.rows[0].value);
+  mitcoinInfo.demand = res.rows[0].demand;
 })
 client.query("SELECT * FROM blacklist", (err, res) => {
   res.rows.forEach(b => {
@@ -82,44 +95,26 @@ client.query("SELECT * FROM balances", (err, res) => {
   })
 })
 
-//client.query("INSERT INTO value VALUES (1, 0)");
-
-// For creating graphs
-const ChartjsNode = require("chartjs-node");
-
-// Mitcoin executives PotatOS and Mitrue
-let executives = ["286664522083729409", "365444992132448258"];
-
-// Channels
-let blockchain = "481797287064895489";
-let logs = "485839182170685460";
-
-// MTC logo emoji
-let MTC = "<:MTC:518256956214083586>";
-
-// How long it takes for Mitcoin's value to automatically fluctuate
-let fluctuationTime = ms("5m");
-
-// Maximum number of history values to be saved
-let maxHistory = 2000;
-
 // Automatically fluctuate Mitcoin's value
 setInterval(function() {
   // Calculate the random fluctuation
-  let fluctuation = Math.round(Math.random() * 10 - 5 + (1 - mitcoinInfo.value) / 5);
+  // Without demand: mitcoinInfo.value *= (round(random(10) - 5 + (1 - value) / 5) + 100) / 100
+  let fluctuation = Math.round(Math.random() * 10 - 4.96 + mitcoinInfo.demand / 10);
   
   // Change Mitcoin's value
   mitcoinInfo.value *= (fluctuation + 100) / 100;
   mitcoinInfo.history.push(parseFloat(mitcoinInfo.value.toFixed(3)));
   mitcoinInfo.history.splice(0, mitcoinInfo.history.length - maxHistory - 1);
   
-  bot.user.setActivity(`MTC Value: ${mitcoinInfo.value.toFixed(3)} | m/help`);
+  if (!maintenance) {
+    bot.user.setActivity(`MTC Value: ${mitcoinInfo.value.toFixed(3)} | m/help`);
 
-  // Save new value to the database
-  client.query("DELETE FROM history");
-  client.query(`UPDATE value SET value = ${mitcoinInfo.value}`);
-  for (let i in mitcoinInfo.history) {
-    client.query(`INSERT INTO history VALUES(${i}, ${mitcoinInfo.history[i]})`);
+    // Save new value to the database
+    client.query("DELETE FROM history");
+    client.query(`UPDATE value SET value = ${mitcoinInfo.value}`);
+    for (let i in mitcoinInfo.history) {
+      client.query(`INSERT INTO history VALUES(${i}, ${mitcoinInfo.history[i]})`);
+    }
   }
 }, fluctuationTime);
 
@@ -131,16 +126,12 @@ bot.on("ready", async () => {
   }
 
   console.log(`${bot.user.username} is online in ${bot.guilds.size} servers!`);
-  bot.user.setActivity(`MTC Value: ${mitcoinInfo.value.toFixed(3)} | m/help`);
-  bot.user.setStatus("online");
+  if (maintenance) bot.user.setActivity(`MTC Value: ${mitcoinInfo.value.toFixed(3)} | m/help`);
+  else bot.user.setActivity("Under maintenance");
 
   // Log a backup of all Mitcoin info
   console.log(JSON.stringify(mitcoinInfo));
 });
-
-// Bot uptime
-let uptime = 0;
-setInterval(e => uptime++, 100);
 
 // Send an alert when the bot joins a new server
 bot.on("guildCreate", async guild => {
@@ -157,6 +148,7 @@ bot.on("guildCreate", async guild => {
   .addField("Invites", "None")
   .setFooter(`Server ID: ${guild.id}`)
   .setTimestamp(guild.joinedAt);
+  logChannel.send(joinEmbed);
 
   setTimeout(function() {
     // Attempt to get invites to the server
@@ -177,7 +169,43 @@ bot.on("guildCreate", async guild => {
       })
       logChannel.send(joinEmbed);
     }
-  }, 1000);
+  }, 10000);
+})
+
+// For the Mitcoin server
+bot.on("guildMemberAdd", member => {
+  if (member.guild.id === "424284908991676418") {
+    // Automatically give the user the Order of Mitcoin role
+    member.addRole("518863961618251776");
+
+    // Send some information about the user
+    let joinEmbed = new Discord.RichEmbed()
+    .setColor("ff9900")
+    .setAuthor(`${member.user.username}#${member.user.discriminator}`, member.user.displayAvatarURL)
+    .setTitle("New member joined")
+    .setDescription(`${member}`)
+    .addField("Account created", member.user.createdAt)
+    .addField("Balance", `${(mitcoinInfo.balances[member.user.id] || {balance: 0}).balance} ${MTC}`, true)
+    .addField("Money", `${(mitcoinInfo.balances[member.user.id] || {money: 1}).money} :dollar:`, true)
+    .setFooter(`ID: ${member.user.id}`)
+    .setTimestamp(member.joinedAt)
+
+    bot.channels.get(logs).send(joinEmbed);
+  }
+})
+
+bot.on("guildMemberRemove", member => {
+  if (member.guild.id === "424284908991676418") {
+    let leaveEmbed = new Discord.RichEmbed()
+    .setColor("ff9900")
+    .setAuthor(`${member.user.username}#${member.user.discriminator}`, member.user.displayAvatarURL)
+    .setTitle("Member left")
+    .setDescription(`${member}`)
+    .setFooter(`ID: ${member.user.id}`)
+    .addField("Joined at", member.joinedAt)
+
+    bot.channels.get(logs).send(leaveEmbed);
+  }
 })
 
 // All bot commands
@@ -213,6 +241,7 @@ const commands = {
       .addField("Equivalent value", `${(mitcoinInfo.value * MTCBal).toFixed(3)} :dollar:`, true)
       .addField("Money", `${mitcoinInfo.balances[balUser.id].money.toFixed(3)} :dollar:`, true)
       .addField("Equivalent value", `${(mitcoinInfo.balances[balUser.id].money / mitcoinInfo.value).toFixed(3)} ${MTC}`, true)
+      //if (investmentFunds.users[balUser.id]) balEmbed.addField("Investment fund", `${investmentFunds.users[balUser.id].amount} ${MTC}`)
       if (mitcoinInfo.blacklist.includes(balUser.id)) balEmbed.setFooter("You are blacklisted from using Mitcoin")
   
       message.channel.send(balEmbed);
@@ -227,18 +256,18 @@ const commands = {
       // DM the list of blacklisted users
       if (!args[0]) return message.author.send(`**List of blacklisted users:**\n${mitcoinInfo.blacklist.length > 0 ? `<@${mitcoinInfo.blacklist.join(">\n<@")}>` : "None"}`);
 
-      let blacklistUser = bot.users.get(args[0]) || bot.users.find("username", args.join(" ")) || message.mentions.members.first();
+      let blacklistUser = bot.users.get(args[0]) || bot.users.find(u => u.username === args.join(" ")) || message.mentions.members.first();
       if (!blacklistUser) return message.channel.send(`${args.join(" ")} is not a valid user`);
       blacklistUser = blacklistUser.user || blacklistUser;
 
       // If the user is already blacklisted, remove them
       if (mitcoinInfo.blacklist.includes(blacklistUser.id)) {
-        message.channel.send(`User: \`${blacklistUser.username}\` successfully removed from blacklist`);
+        message.channel.send(`User: \`${blacklistUser.username}#${blacklistUser.discriminator}\` successfully removed from blacklist`);
         return mitcoinInfo.blacklist.splice(mitcoinInfo.blacklist.indexOf(blacklistUser.id), 1)
       }
 
       // Otherwise, blacklist them
-      message.channel.send(`User: \`${blacklistUser.username}\` successfully added to blacklist`);
+      message.channel.send(`User: \`${blacklistUser.username}#${blacklistUser.discriminator}\` successfully added to blacklist`);
       mitcoinInfo.blacklist.push(blacklistUser.id);
     }
   },
@@ -335,7 +364,7 @@ const commands = {
       mitcoinInfo.balances[payUser.id].balance += parseFloat(payAmount);
   
       // Send the confirmation message
-      message.channel.send(`${message.author} has given ${payAmount} ${MTC} to ${payUser.username}`);
+      message.channel.send(`${message.author} has given ${payAmount} ${MTC} to ${payUser.username}#${payUser.discriminator}`);
 
       // Send it in the blockchain
       let embed = new Discord.RichEmbed()
@@ -394,7 +423,7 @@ const commands = {
           
           // If no one reacted
           if (!entries || entries.count <= 1) return message.channel.send("**No one reacted to the giveaway!**\n__Make sure to react before the time runs out.__");
-
+          console.log(entries)
           // Choose a random winner
           let winner = Math.floor(Math.random() * (entries.count - 1));
 
@@ -422,6 +451,17 @@ const commands = {
             .setTimestamp(msg.createdAt)
 
             message.channel.send(winEmbed);
+            
+            // Send it in the blockchain
+            let embed = new Discord.RichEmbed()
+            .setColor("#ff9900")
+            .setTitle("Giveaway ended")
+            .setAuthor(`${winUser.username}#${winUser.discriminator}`, winUser.displayAvatarURL)
+            .addField("Prize", `${winAmount} ${MTC}`)
+            .addField("Participants", entries.count - 1)
+            .setTimestamp(msg.createdAt);
+            
+            bot.channels.get(blockchain).send(embed);
           })
         }, ms(time))
       })
@@ -512,7 +552,7 @@ const commands = {
         let timeString = "";
         if (time >= 86400000) timeString += `${Math.floor(time / 86400000)} day${time > 172800000 ? "s" : ""}, `;
         if (time >= 3600000) timeString += `${Math.floor((time % 86400000) / 3600000)} hour${time % 86400000 > 7200000 ? "s" : ""}, `;
-        if (time >= 60000) timeString += `${Math.floor((time % 3600000) / 60000)} minutes`;
+        if (time >= 60000) timeString += `${Math.floor((time % 3600000) / 60000)} ${Math.floor((time % 3600000) / 60000) === 1 ? "minute" : "minutes"}`;
 
         // Create an embed with the graph
         let embed = {
@@ -581,17 +621,30 @@ const commands = {
       if (investments[message.author.id].invested > 1) return message.reply("you can only invest twice per day");
       investments[message.author.id].invested++;
       setTimeout(function() {
-          investments[message.author.id].invested--;
-          if (investments[message.author.id].invested > 0) message.reply("you may invest again!");
+        investments[message.author.id].invested--;
+        if (investments[message.author.id].invested > 0) message.reply("you may invest again!");
       }, 86400000);
+      
+      // Demand increases proportionally to user's balance
+      mitcoinInfo.demand += investAmount / mitcoinInfo.balances[message.author.id].money;
       
       // Add the invested amount to the user's balance
       mitcoinInfo.balances[message.author.id].balance += investAmount / mitcoinInfo.value;
       mitcoinInfo.balances[message.author.id].money -= investAmount;
+
+      // If the transaction is at least 100 MTC, give it a 5% tax
+      if (investAmount / mitcoinInfo.value >= 100) {
+        mitcoinInfo.balances[message.author.id].balance -= investAmount / mitcoinInfo.value * 0.05;
+
+        // Distribute the tax evenly among investment fund holders
+        /*for (let i in investmentFunds.users) {
+          mitcoinInfo.balances[i].balance += investmentFunds.users[i].amount / investmentFunds.total * investAmount / mitcoinInfo.value * 0.05;
+        }*/
+      }
       
       // Send the message
-      if (mitcoinInfo.balances[message.author.id].money > 0) message.channel.send(`${message.author} has earned ${(investAmount / mitcoinInfo.value).toFixed(3)} ${MTC} after investing ${investAmount.toFixed(2)} :dollar: and has ${(mitcoinInfo.balances[message.author.id].money).toFixed(2)} :dollar: left to invest`);
-      else message.channel.send(`${message.author} has earned ${(investAmount / mitcoinInfo.value).toFixed(3)} ${MTC} after investing ${investAmount.toFixed(2)} :dollar: and cannot invest any more :dollar:`);
+      if (mitcoinInfo.balances[message.author.id].money > 0) message.channel.send(`${message.author} has earned ${(investAmount / mitcoinInfo.value).toFixed(3)} ${MTC} after investing ${investAmount.toFixed(3)} :dollar: and has ${(mitcoinInfo.balances[message.author.id].money).toFixed(3)} :dollar: left to invest`);
+      else message.channel.send(`${message.author} has earned ${(investAmount / mitcoinInfo.value).toFixed(3)} ${MTC} after investing ${investAmount.toFixed(3)} :dollar: and cannot invest any more :dollar:`);
 
       // Send it in the blockchain
       let embed = new Discord.RichEmbed()
@@ -604,6 +657,24 @@ const commands = {
       bot.channels.get(blockchain).send(embed);
     }
   },
+  /*investmentFund: {
+    name: "investmentfund",
+    run: (message, args) => {
+      if (!args[0]) return message.channel.send("Specify an amount of MTC");
+      let amount = parseFloat(args[0]);
+      if (args[0].toLowerCase === "all") amount = mitcoinInfo.balances[message.author.id].balance;
+      if (!amount || amount <= 0) return message.channel.send("Specify a valid amount of MTC");
+
+      if (amount > mitcoinInfo.balances[message.author.id].balance) return message.channel.send("You don't have enough MTC!");
+
+      if (!investmentFunds.users[message.author.id]) investmentFunds.users[message.author.id] = {
+        amount: 0
+      }
+      
+      investmentFunds.total += amount;
+      investmentFunds.users[message.author.id].amount += amount;
+    }
+  },*/
   invite: {
     name: "invite",
     desc: "Join Mitcoin's server or invite the bot",
@@ -621,7 +692,7 @@ const commands = {
   },
   leaderboard: {
     name: "leaderboard",
-    alias: ["top", "board"],
+    alias: ["top", "board", "lb"],
     desc: "View the current Mitcoin leaderboard",
     run: (message, args) => {
       // How the leaderboard should sort (MTC by default)
@@ -699,7 +770,7 @@ const commands = {
       message.channel.send(logoEmbed);
     }
   },
-  reset: {
+  /*reset: {
     name: "reset",
     run: (message, args) => {
       // Check if the user is a Mitcoin executive
@@ -727,13 +798,14 @@ const commands = {
       if (args[0] !== "all") return message.channel.send(`Mitcoin ${args[0]} reset.`);
       message.channel.send("Mitcoin value and balances reset.");
     }
-  },
+  },*/
   revive: {
     name: "revive",
     run: async (message, args) => {
       // Check if the user is a Mitcoin executive
       if (!executives.includes(message.author.id)) return;
 
+      message.delete();
       if (!args[0] || !parseInt(args[0])) return message.channel.send("Specify the message ID");
       
       message.channel.fetchMessage(args[0]).then(msg => {
@@ -777,6 +849,17 @@ const commands = {
           
           msg.delete();
           message.channel.send(winEmbed);
+            
+          // Send it in the blockchain
+          let embed = new Discord.RichEmbed()
+          .setColor("#ff9900")
+          .setTitle("Giveaway ended")
+          .setAuthor(`${winUser.username}#${winUser.discriminator}`, winUser.displayAvatarURL)
+          .addField("Prize", `${winAmount} ${MTC}`)
+          .addField("Participants", entries.count - 1)
+          .setTimestamp(msg.createdAt);
+          
+          bot.channels.get(blockchain).send(embed);
         })
       }).catch(error => {
         message.channel.send("Specify a valid message ID");
@@ -817,13 +900,16 @@ const commands = {
           if (sales[message.author.id].sales > 0)
           message.reply("you may sell again!");
       }, 86400000);
-  
+      
+      // Demand decreases proportionally to user's balance
+      mitcoinInfo.demand -= sellAmount / mitcoinInfo.balances[message.author.id].balance;
+
       // Actually calculate the sale
       mitcoinInfo.balances[message.author.id].balance -= sellAmount;
       mitcoinInfo.balances[message.author.id].money += sellAmount * mitcoinInfo.value;
   
       // Send the confirmation message
-      message.channel.send(`${message.author} has sold ${Math.round(sellAmount * 1000) / 1000} ${MTC} and recieved ${(sellAmount * mitcoinInfo.value).toFixed(2)} :dollar:`);
+      message.channel.send(`${message.author} has sold ${sellAmount.toFixed(3)} ${MTC} and recieved ${(sellAmount * mitcoinInfo.value).toFixed(3)} :dollar:`);
 
       // Send it in the blockchain
       let embed = new Discord.RichEmbed()
@@ -840,6 +926,7 @@ const commands = {
     name: "uptime",
     run: (message, args) => {
       let uptimeMsg = "";
+      let uptime = bot.uptime / 100;
 
       // Format the time
       if (uptime >= 864000) uptimeMsg += `${Math.floor(uptime / 864000)} day${uptime > 1728000 ? "s" : ""}, `;
@@ -871,6 +958,13 @@ let investments = {};
 
 // How many times each user has sold for the day
 let sales = {};
+
+/*
+let investmentFunds = {
+  total: 0,
+  users: {}
+};
+*/
 
 // When a message is sent
 bot.on("message", async message => {
@@ -905,17 +999,17 @@ bot.on("message", async message => {
         money: 1
       }
 
-      if (message.channel.id !== "495366302542594058") return message.channel.send("Sorry, Mitcoin is currently under maintenance. It will be back up shortly!");
+      if (maintenance && message.channel.id !== "495366302542594058" && message.guild.id !== "430340461878575105") return message.channel.send("Sorry, Mitcoin is currently under maintenance. It will be back up shortly!");
       commands[i].run(message, args);
     }
 
     // If mitcoinInfo changed
-    if (Object.keys(mitcoinInfo) !== oldInfo) {
+    if (Object.keys(mitcoinInfo) !== oldInfo && !maintenance) {
       // Save the Mitcoin database
       client.query("DELETE FROM balances");
       client.query("DELETE FROM blacklist");
       client.query("DELETE FROM history");
-      client.query(`UPDATE value SET value = ${mitcoinInfo.value}`);
+      client.query(`UPDATE value SET value = (${mitcoinInfo.value}, ${mitcoinInfo.demand})`);
       for (let i in mitcoinInfo.balances) {
         client.query(`INSERT INTO balances VALUES(${i}, ${mitcoinInfo.balances[i].balance}, ${mitcoinInfo.balances[i].money})`);
       }

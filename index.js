@@ -34,7 +34,14 @@
  */
 
 
-// Some specific things to set up
+// Bot setup
+const botconfig = require("./botconfig.json");
+const Discord = require("discord.js");
+const fs = require("fs");
+const ms = require("ms");
+const bot = new Discord.Client({disableEveryone: true});
+
+// Some other specific things to set up
 let maintenance = true; // Whether the bot is in maintenance mode
 const executives = ["286664522083729409", "365444992132448258"]; // Mitcoin executives PotatOS and Mitrue
 const blockchain = "481797287064895489"; // Blockchain channel ID
@@ -42,13 +49,6 @@ const logs = "485839182170685460"; // Logs channel ID
 const MTC = "<:MTC:518256956214083586>"; // Mitcoin logo emoji
 let fluctuationTime = ms("5m"); // How long it takes for Mitcoin's value to automatically fluctuate
 let maxHistory = 2000; // Maximum number of history values to be saved
-
-// Bot setup
-const botconfig = require("./botconfig.json");
-const Discord = require("discord.js");
-const fs = require("fs");
-const ms = require("ms");
-const bot = new Discord.Client({disableEveryone: true});
 
 // For creating graphs
 const ChartjsNode = require("chartjs-node");

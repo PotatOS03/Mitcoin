@@ -71,8 +71,13 @@ let mitcoinInfo = {
   history: []
 };
 
+client.query("DROP TABLE value");
+client.query("CREATE TABLE value(value REAL, demand REAL)");
+client.query("INSERT INTO value VALUES(0.714, 0)");
+
 // Load Mitcoin information from the database
 client.query("SELECT * FROM value", (err, res) => {
+  console.log(res);
   mitcoinInfo.value = res.rows[0].value;
   mitcoinInfo.demand = res.rows[0].demand;
 })

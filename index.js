@@ -59,10 +59,10 @@ let mitcoinInfo = {
 };
 
 // Load Mitcoin information from the database
-/*client.query("SELECT * FROM value", (err, res) => {
+client.query("SELECT * FROM value", (err, res) => {
   console.log(res.rows);
   mitcoinInfo.value = (res.rows[0].value);
-})*/
+})
 client.query("SELECT * FROM blacklist", (err, res) => {
   res.rows.forEach(b => {
     mitcoinInfo.blacklist.push(b.id);
@@ -82,7 +82,7 @@ client.query("SELECT * FROM balances", (err, res) => {
   })
 })
 
-client.query("CREATE TABLE value (value float, demand float)");
+//client.query("CREATE TABLE value (value float, demand float)");
 
 // For creating graphs
 const ChartjsNode = require("chartjs-node");

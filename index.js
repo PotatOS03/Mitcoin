@@ -78,12 +78,12 @@ client.query("SELECT * FROM balances", (err, res) => {
   })
 })
 
-//client.query("INSERT INTO value (1, 0)");
+client.query("INSERT INTO value (1, 0)");
 
-client.query("SELECT * FROM value", (err, res) => {
+/*client.query("SELECT * FROM value", (err, res) => {
   console.log(res.rows);
   mitcoinInfo.value = (res.rows[0].value);
-})
+})*/
 
 // For creating graphs
 const ChartjsNode = require("chartjs-node");

@@ -872,6 +872,8 @@ let sales = {};
 
 // When a message is sent
 bot.on("message", async message => {
+  if (message.channel.id !== "495366302542594058") return;
+  
   // Ignore the message if it is sent by a bot
   if (message.author.bot) return;
   // Ignore the message if it is send in DM

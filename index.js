@@ -82,7 +82,7 @@ client.query("SELECT * FROM balances", (err, res) => {
   })
 })
 
-//client.query("DROP TABLE value");
+client.query("CREATE TABLE value (value float, demand float)");
 
 // For creating graphs
 const ChartjsNode = require("chartjs-node");

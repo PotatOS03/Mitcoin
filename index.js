@@ -78,7 +78,7 @@ client.query("SELECT * FROM balances", (err, res) => {
   })
 })
 
-client.query("INSERT INTO value (1, 0)");
+client.query("INSERT INTO value VALUES (1, 0)");
 
 /*client.query("SELECT * FROM value", (err, res) => {
   console.log(res.rows);

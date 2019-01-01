@@ -59,10 +59,10 @@ let mitcoinInfo = {
 };
 
 // Load Mitcoin information from the database
-client.query("SELECT * FROM value", (err, res) => {
+/*client.query("SELECT * FROM value", (err, res) => {
   console.log(res.rows);
   mitcoinInfo.value = (res.rows[0].value);
-})
+})*/
 client.query("SELECT * FROM blacklist", (err, res) => {
   res.rows.forEach(b => {
     mitcoinInfo.blacklist.push(b.id);

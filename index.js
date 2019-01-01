@@ -42,7 +42,7 @@ const ms = require("ms");
 const bot = new Discord.Client({disableEveryone: true});
 
 // Some other specific things to set up
-let maintenance = false; // Whether the bot is in maintenance mode
+let maintenance = true; // Whether the bot is in maintenance mode
 const executives = ["286664522083729409", "365444992132448258"]; // Mitcoin executives PotatOS and Mitrue
 const blockchain = "481797287064895489"; // Blockchain channel ID
 const logs = "485839182170685460"; // Logs channel ID

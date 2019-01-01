@@ -82,7 +82,7 @@ client.query("SELECT * FROM balances", (err, res) => {
   })
 })
 
-client.query("DROP TABLE value");
+//client.query("DROP TABLE value");
 
 // For creating graphs
 const ChartjsNode = require("chartjs-node");
@@ -874,8 +874,6 @@ let sales = {};
 
 // When a message is sent
 bot.on("message", async message => {
-  if (message.channel.id !== "495366302542594058") return message.channel.send("Sorry, Mitcoin is currently under maintenance. It will be back up shortly!");
-  
   // Ignore the message if it is sent by a bot
   if (message.author.bot) return;
   // Ignore the message if it is send in DM
@@ -907,6 +905,7 @@ bot.on("message", async message => {
         money: 1
       }
 
+      if (message.channel.id !== "495366302542594058") return message.channel.send("Sorry, Mitcoin is currently under maintenance. It will be back up shortly!");
       commands[i].run(message, args);
     }
 

@@ -926,7 +926,7 @@ const commands = {
     name: "uptime",
     run: (message, args) => {
       let uptimeMsg = "";
-      let uptime = bot.uptime / 100;
+      let uptime = (bot.uptime / 100).toFixed(0);
 
       // Format the time
       if (uptime >= 864000) uptimeMsg += `${Math.floor(uptime / 864000)} day${uptime > 1728000 ? "s" : ""}, `;

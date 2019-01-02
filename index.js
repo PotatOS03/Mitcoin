@@ -120,13 +120,13 @@ setInterval(function() {
 
 // When the bot is loaded
 bot.on("ready", async () => {
-  if (Object.keys(mitcoinInfo.balances).length <= 0) {
+  if (Object.keys(mitcoinInfo.balances).length <= 0 && bot.user.id === "430468476038152194") {
     console.log("Database not loaded properly?");
     bot.users.get(executives[0]).send("Database not loaded properly?").then(setTimeout(function() {process.exit(0);}, 0));
   }
 
   console.log(`${bot.user.username} is online in ${bot.guilds.size} servers!`);
-  if (maintenance) bot.user.setActivity("Under maintenance");
+  if (maintenance) bot.user.setActivity("Maintenance");
   else bot.user.setActivity(`MTC Value: ${mitcoinInfo.value.toFixed(3)} | m/help`);
 
   // Log a backup of all Mitcoin info
@@ -879,7 +879,7 @@ const commands = {
       // If no amount is specified
       if (!args[0]) return message.channel.send("Specify an amount to sell");
       
-      let sellAmount = parseFloat(args[0]).toFixed(3);
+      let sellAmount = parseFloat(args[0]);
       if (args[0].toLowerCase() === "all") sellAmount = mitcoinInfo.balances[message.author.id].balance;
   
       if (!sellAmount || sellAmount <= 0 || sellAmount === "NaN") return message.channel.send(`Specify a valid number to sell`);
@@ -1009,7 +1009,7 @@ bot.on("message", async message => {
       client.query("DELETE FROM balances");
       client.query("DELETE FROM blacklist");
       client.query("DELETE FROM history");
-      client.query(`UPDATE value SET value = ${mitcoinInfo.value}, demand = ${mitcoinInfo.demand}`);
+      client.query(`UPDATE value SET value = (${mitcoinInfo.value}, ${mitcoinInfo.demand})`);
       for (let i in mitcoinInfo.balances) {
         client.query(`INSERT INTO balances VALUES(${i}, ${mitcoinInfo.balances[i].balance}, ${mitcoinInfo.balances[i].money})`);
       }

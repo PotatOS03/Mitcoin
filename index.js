@@ -99,7 +99,10 @@ client.query("SELECT * FROM balances", (err, res) => {
 setInterval(function() {
   // Calculate the random fluctuation
   // Without demand: mitcoinInfo.value *= (round(random(10) - 5 + (1 - value) / 5) + 100) / 100
-  let fluctuation = Math.round(Math.random() * 10 - 4.96 + mitcoinInfo.demand / 10);
+  let fluctuation = Math.round(Math.random() * 10 - 4.96 + mitcoinInfo.demand / 20);
+
+  // Demand decays slightly over time
+  mitcoinInfo.demand *= 0.9997;
   
   // Change Mitcoin's value
   mitcoinInfo.value *= (fluctuation + 100) / 100;

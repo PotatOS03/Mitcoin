@@ -114,7 +114,7 @@ setInterval(function() {
 
     // Save new value to the database
     client.query("DELETE FROM history");
-    client.query(`UPDATE value SET value = ${mitcoinInfo.value}`);
+    client.query(`UPDATE value SET value = ${mitcoinInfo.value}, demand = ${mitcoinInfo.demand}`);
     for (let i in mitcoinInfo.history) {
       client.query(`INSERT INTO history VALUES(${i}, ${mitcoinInfo.history[i]})`);
     }

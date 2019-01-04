@@ -95,7 +95,7 @@ client.query("SELECT * FROM balances", (err, res) => {
   })
 })
 
-// Automatically fluctuate Mitcoin's value
+// Automatically fluctuate Mitcoin's value and update automatic things
 setInterval(function() {
   // Calculate the random fluctuation
   // Without demand: mitcoinInfo.value *= (round(random(10) - 5 + (1 - value) / 5) + 100) / 100
@@ -119,6 +119,22 @@ setInterval(function() {
       client.query(`INSERT INTO history VALUES(${i}, ${mitcoinInfo.history[i]})`);
     }
   }
+
+  // Update Mitcoin server roles
+  let leaderboard = Object.values(mitcoinInfo.balances).sort((a, b) => b.balance - a.balance);
+  bot.guilds.get("424284908991676418").members.forEach(m => {
+    // Richest of the Rich
+    if (m.roles.has("527225117818880000") && mitcoinInfo.balances[m.user.id] !== leaderboard[0]) m.removeRole("527225117818880000");
+    else if (!m.roles.has("527225117818880000") && mitcoinInfo.balances[m.user.id] === leaderboard[0] && leaderboard[0]) m.addRole("527225117818880000");
+
+    // Leaderboard Member
+    if (m.roles.has("530794529612365863") && leaderboard.indexOf(mitcoinInfo.balances[m.user.id]) < 0 || leaderboard.indexOf(mitcoinInfo.balances[m.user.id]) > 4) m.removeRole("530794529612365863");
+    else if (!m.roles.has("530794529612365863") && leaderboard.indexOf(mitcoinInfo.balances[m.user.id]) >= 0 && leaderboard.indexOf(mitcoinInfo.balances[m.user.id]) <= 4) m.addRole("530794529612365863");
+
+    // Mitcoin Millionaire
+    if (m.roles.has("530794639301673000") && mitcoinInfo.balances[m.user.id] && mitcoinInfo.balances[m.user.id].balance < 1000000) m.removeRole("530794639301673000");
+    else if (!m.roles.has("530794639301673000") && mitcoinInfo.balances[m.user.id] && mitcoinInfo.balances[m.user.id].balance >= 1000000) m.addRole("530794639301673000");
+  })
 }, fluctuationTime);
 
 // When the bot is loaded

@@ -139,7 +139,7 @@ setInterval(function() {
     else if (!m.roles.has("527225117818880000") && mitcoinInfo.balances[m.user.id] === mitcoinInfo.balances[ids[0]] && ids[0]) m.addRole("527225117818880000");
 
     // Leaderboard Member
-    if (m.roles.has("527225117818880000") || (m.roles.has("530794529612365863") && ids.indexOf(m.user.id) < 0 || ids.includes(m.user.id))) m.removeRole("530794529612365863");
+    if (m.roles.has("527225117818880000") || (m.roles.has("530794529612365863") && !ids.includes(m.user.id))) m.removeRole("530794529612365863");
     else if (!m.roles.has("527225117818880000") && !m.roles.has("530794529612365863") && ids.includes(m.user.id)) m.addRole("530794529612365863");
 
     // Mitcoin Millionaire

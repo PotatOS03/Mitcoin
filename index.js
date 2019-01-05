@@ -99,7 +99,7 @@ client.query("SELECT * FROM balances", (err, res) => {
 setInterval(function() {
   // Calculate the random fluctuation
   // Without demand: mitcoinInfo.value *= (round(random(10) - 5 + (1 - value) / 5) + 100) / 100
-  let fluctuation = Math.round(Math.random() * 10 - 4.96 + mitcoinInfo.demand / 20);
+  let fluctuation = Math.round(Math.random() * 10 - 4.96 + mitcoinInfo.demand / 16);
 
   // Demand decays slightly over time
   mitcoinInfo.demand *= 0.9997;
@@ -122,14 +122,25 @@ setInterval(function() {
 
   // Update Mitcoin server roles
   let leaderboard = Object.values(mitcoinInfo.balances).sort((a, b) => b.balance - a.balance);
+  let ids = [];
+  for (let i = 0; i < Math.min(leaderboard.length, 5); i++) {
+    bot.users.forEach(u => {
+      if (mitcoinInfo.balances[u.id] && mitcoinInfo.balances[u.id] === leaderboard[i]) ids.push(u.id);
+    })
+    if (mitcoinInfo.balances[ids[ids.length - 1]] !== leaderboard[i]) {
+      leaderboard.splice(i, 1);
+      i--;
+    }
+  }
+  
   bot.guilds.get("424284908991676418").members.forEach(m => {
     // Richest of the Rich
-    if (m.roles.has("527225117818880000") && mitcoinInfo.balances[m.user.id] !== leaderboard[0]) m.removeRole("527225117818880000");
-    else if (!m.roles.has("527225117818880000") && mitcoinInfo.balances[m.user.id] === leaderboard[0] && leaderboard[0]) m.addRole("527225117818880000");
+    if (m.roles.has("527225117818880000") && mitcoinInfo.balances[m.user.id] !== mitcoinInfo.balances[ids[0]]) m.removeRole("527225117818880000");
+    else if (!m.roles.has("527225117818880000") && mitcoinInfo.balances[m.user.id] === mitcoinInfo.balances[ids[0]] && ids[0]) m.addRole("527225117818880000");
 
     // Leaderboard Member
-    if (m.roles.has("530794529612365863") && leaderboard.indexOf(mitcoinInfo.balances[m.user.id]) < 0 || leaderboard.indexOf(mitcoinInfo.balances[m.user.id]) > 4) m.removeRole("530794529612365863");
-    else if (!m.roles.has("530794529612365863") && leaderboard.indexOf(mitcoinInfo.balances[m.user.id]) >= 0 && leaderboard.indexOf(mitcoinInfo.balances[m.user.id]) <= 4) m.addRole("530794529612365863");
+    if (m.roles.has("527225117818880000") || (m.roles.has("530794529612365863") && ids.indexOf(m.user.id) < 0 || ids.includes(m.user.id))) m.removeRole("530794529612365863");
+    else if (!m.roles.has("527225117818880000") && !m.roles.has("530794529612365863") && ids.includes(m.user.id)) m.addRole("530794529612365863");
 
     // Mitcoin Millionaire
     if (m.roles.has("530794639301673000") && mitcoinInfo.balances[m.user.id] && mitcoinInfo.balances[m.user.id].balance < 1000000) m.removeRole("530794639301673000");
@@ -736,7 +747,7 @@ const commands = {
       };
   
       // Find the usernames of all leaderboard users
-      for (var i = 0; i < Math.min(leaderboard.length, 5); i++) {
+      for (let i = 0; i < Math.min(leaderboard.length, 5); i++) {
           bot.users.forEach(user => {
               if (mitcoinInfo.balances[user.id] && ((type === 0 && mitcoinInfo.balances[user.id].balance === leaderboard[i].balance) || (type === 1 && mitcoinInfo.balances[user.id].money === leaderboard[i].money) || (type === 2 && mitcoinInfo.balances[user.id].money + mitcoinInfo.balances[user.id].balance * mitcoinInfo.value === leaderboard[i].money + leaderboard[i].balance * mitcoinInfo.value)) && !usernames.ids.includes(user.id)) {
                   usernames.ids[i] = user.id;
@@ -754,7 +765,7 @@ const commands = {
       let userPlace;
   
       // Find what place the user is in
-      for (var i = 0; i < leaderboard.length; i++) {
+      for (let i = 0; i < leaderboard.length; i++) {
           if ((type === 0 && leaderboard[i].balance === mitcoinInfo.balances[message.author.id].balance) || (type === 1 && leaderboard[i].money === mitcoinInfo.balances[message.author.id].money) || (type === 2 && leaderboard[i].money + leaderboard[i].balance * mitcoinInfo.value === mitcoinInfo.balances[message.author.id].money + mitcoinInfo.balances[message.author.id].balance * mitcoinInfo.value)) {
               userPlace = i + 1;
           }

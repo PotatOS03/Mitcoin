@@ -658,19 +658,20 @@ const commands = {
       // Demand increases proportionally to user's balance
       mitcoinInfo.demand += investAmount / mitcoinInfo.balances[message.author.id].money;
       
-      // Add the invested amount to the user's balance
-      mitcoinInfo.balances[message.author.id].balance += investAmount / mitcoinInfo.value;
-      mitcoinInfo.balances[message.author.id].money -= investAmount;
-
       // If the transaction is at least 100 MTC, give it a 5% tax
       if (investAmount / mitcoinInfo.value >= 100) {
-        mitcoinInfo.balances[message.author.id].balance -= investAmount / mitcoinInfo.value * 0.05;
+        investAmount *= 0.95;
 
         // Distribute the tax evenly among investment fund holders
         /*for (let i in investmentFunds.users) {
           mitcoinInfo.balances[i].balance += investmentFunds.users[i].amount / investmentFunds.total * investAmount / mitcoinInfo.value * 0.05;
         }*/
       }
+
+      // Add the invested amount to the user's balance
+      mitcoinInfo.balances[message.author.id].balance += investAmount / mitcoinInfo.value;
+      mitcoinInfo.balances[message.author.id].money -= investAmount;
+
       
       // Send the message
       if (mitcoinInfo.balances[message.author.id].money > 0) message.channel.send(`${message.author} has earned ${(investAmount / mitcoinInfo.value).toFixed(3)} ${MTC} after investing ${investAmount.toFixed(3)} :dollar: and has ${(mitcoinInfo.balances[message.author.id].money).toFixed(3)} :dollar: left to invest`);

@@ -682,7 +682,7 @@ const commands = {
       .setAuthor(`${message.author.username}#${message.author.discriminator}`, message.author.displayAvatarURL)
       .addField("Invested", `${investAmount} :dollar:`)
       .addField("Equivalent Amount", `${investAmount / mitcoinInfo.value} ${MTC}`)
-      .addField("Tax", `${investAmount / mitcoinInfo.value * 0.05} ${MTC}`)
+      if (investAmount / mitcoinInfo.value >= 100) embed.addField("Tax", `${investAmount / mitcoinInfo.value * 0.05} ${MTC}`)
       .setTimestamp(message.createdAt);
       
       bot.channels.get(blockchain).send(embed);

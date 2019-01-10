@@ -658,24 +658,23 @@ const commands = {
       // Demand increases proportionally to user's balance
       mitcoinInfo.demand += investAmount / mitcoinInfo.balances[message.author.id].money;
       
+      // Add the invested amount to the user's balance
+      mitcoinInfo.balances[message.author.id].balance += investAmount / mitcoinInfo.value;
+      mitcoinInfo.balances[message.author.id].money -= investAmount;
+
       // If the transaction is at least 100 MTC, give it a 5% tax
       if (investAmount / mitcoinInfo.value >= 100) {
-        investAmount *= 0.95;
+        mitcoinInfo.balances[message.author.id].balance -= investAmount / mitcoinInfo.value * 0.05;
 
         // Distribute the tax evenly among investment fund holders
         /*for (let i in investmentFunds.users) {
           mitcoinInfo.balances[i].balance += investmentFunds.users[i].amount / investmentFunds.total * investAmount / mitcoinInfo.value * 0.05;
         }*/
       }
-
-      // Add the invested amount to the user's balance
-      mitcoinInfo.balances[message.author.id].balance += investAmount / mitcoinInfo.value;
-      mitcoinInfo.balances[message.author.id].money -= investAmount;
-
       
       // Send the message
-      if (mitcoinInfo.balances[message.author.id].money > 0) message.channel.send(`${message.author} has earned ${(investAmount / mitcoinInfo.value).toFixed(3)} ${MTC} after investing ${investAmount.toFixed(3)} :dollar: and has ${(mitcoinInfo.balances[message.author.id].money).toFixed(3)} :dollar: left to invest`);
-      else message.channel.send(`${message.author} has earned ${(investAmount / mitcoinInfo.value).toFixed(3)} ${MTC} after investing ${investAmount.toFixed(3)} :dollar: and cannot invest any more :dollar:`);
+      if (mitcoinInfo.balances[message.author.id].money > 0) message.channel.send(`${message.author} has earned ${(investAmount / mitcoinInfo.value * (investAmount / mitcoinInfo.value >= 100 ? 0.95 : 1)).toFixed(3)} ${MTC} after investing ${investAmount.toFixed(3)} :dollar: and has ${(mitcoinInfo.balances[message.author.id].money).toFixed(3)} :dollar: left to invest`);
+      else message.channel.send(`${message.author} has earned ${(investAmount / mitcoinInfo.value * (investAmount / mitcoinInfo.value >= 100 ? 0.95 : 1)).toFixed(3)} ${MTC} after investing ${investAmount.toFixed(3)} :dollar: and cannot invest any more :dollar:`);
 
       // Send it in the blockchain
       let embed = new Discord.RichEmbed()
@@ -683,6 +682,7 @@ const commands = {
       .setAuthor(`${message.author.username}#${message.author.discriminator}`, message.author.displayAvatarURL)
       .addField("Invested", `${investAmount} :dollar:`)
       .addField("Equivalent Amount", `${investAmount / mitcoinInfo.value} ${MTC}`)
+      .addField("Tax", `${investAmount / mitcoinInfo.value * 0.05} ${MTC}`)
       .setTimestamp(message.createdAt);
       
       bot.channels.get(blockchain).send(embed);

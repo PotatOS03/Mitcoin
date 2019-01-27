@@ -164,7 +164,7 @@ bot.on("ready", async () => {
 });
 
 // Send an alert when the bot joins a new server
-bot.on("guildCreate", async guild => {
+bot.on("guildCreate", guild => {
   let logChannel = bot.channels.get(logs);
   console.log(`NEW SERVER JOINED: ${guild.name}`)
 

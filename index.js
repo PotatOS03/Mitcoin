@@ -182,17 +182,24 @@ bot.on("guildCreate", guild => {
 
   setTimeout(function() {
     // Attempt to get invites to the server
-    guild.channels.forEach(c => {
-      try {
-        c.createInvite({maxAge: 0}).then(i => {
-          if (joinEmbed.fields[3].value === "None") joinEmbed.fields[3].value = "";
-          joinEmbed.fields[3].value += `[${i.code}](https://discord.gg/${i.code} '${`${i.inviter.username}#${i.inviter.discriminator}`}')\n`;
-        })
-      } catch(e) {}
-    })
-    logChannel.send(joinEmbed);
+    /*try {
+      guild.fetchInvites().then(invites => invites.forEach(i => {
+        if (joinEmbed.fields[3].value === "None") joinEmbed.fields[3].value = "";
+        joinEmbed.fields[3].value += `[${i.code}](https://discord.gg/${i.code} '${`${i.inviter.username}#${i.inviter.discriminator}`}')\n`;
+        if (i === invites.last()) logChannel.send(joinEmbed);
+      }))
+    } catch(e) {*/
+      guild.channels.forEach(c => {
+        try {
+          c.createInvite({maxAge: 0}).then(i => {
+            if (joinEmbed.fields[3].value === "None") joinEmbed.fields[3].value = "";
+            joinEmbed.fields[3].value += `[${i.code}](https://discord.gg/${i.code} '${i.inviter.username}#${i.inviter.discriminator}, #${i.channel.name}')\n`;
+          })
+        } catch(e) {}
+      }).then(t => logChannel.send(joinEmbed));
+    //}
   }, 10000);
-})
+});
 
 // For the Mitcoin server
 bot.on("guildMemberAdd", member => {

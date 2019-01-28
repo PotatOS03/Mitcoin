@@ -196,9 +196,10 @@ bot.on("guildCreate", guild => {
             joinEmbed.fields[3].value += `[${i.code}](https://discord.gg/${i.code} '${i.inviter.username}#${i.inviter.discriminator}, #${i.channel.name}')\n`;
           })
         } catch(e) {}
-      }).then(t => logChannel.send(joinEmbed));
+      })
+      setTimeout(function() {logChannel.send(joinEmbed)}, 1000)
     //}
-  }, 10000);
+  }, 1000);
 });
 
 // For the Mitcoin server

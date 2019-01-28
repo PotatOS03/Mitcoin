@@ -182,23 +182,15 @@ bot.on("guildCreate", guild => {
 
   setTimeout(function() {
     // Attempt to get invites to the server
-    /*try {
-      guild.fetchInvites().then(invites => invites.forEach(i => {
-        if (joinEmbed.fields[3].value === "None") joinEmbed.fields[3].value = "";
-        joinEmbed.fields[3].value += `[${i.code}](https://discord.gg/${i.code} '${`${i.inviter.username}#${i.inviter.discriminator}`}')\n`;
-        if (i === invites.last()) logChannel.send(joinEmbed);
-      }))
-    } catch(e) {*/
-      guild.channels.forEach(c => {
-        try {
-          c.createInvite({maxAge: 0}).then(i => {
-            if (joinEmbed.fields[3].value === "None") joinEmbed.fields[3].value = "";
-            joinEmbed.fields[3].value += `[${i.code}](https://discord.gg/${i.code} '${i.inviter.username}#${i.inviter.discriminator}, #${i.channel.name}')\n`;
-          })
-        } catch(e) {}
-      })
-      setTimeout(function() {logChannel.send(joinEmbed)}, 1000)
-    //}
+    guild.channels.forEach(c => {
+      try {
+        c.createInvite({maxAge: 0}).then(i => {
+          if (joinEmbed.fields[3].value === "None") joinEmbed.fields[3].value = "";
+          joinEmbed.fields[3].value += `[${i.code}](https://discord.gg/${i.code} '${i.inviter.username}#${i.inviter.discriminator} | #${i.channel.name}')\n`;
+        })
+      } catch(e) {}
+    })
+    setTimeout(function() {logChannel.send(joinEmbed)}, 1000);
   }, 1000);
 });
 
@@ -208,6 +200,7 @@ bot.on("guildCreate", guild => {
   console.log(`NEW SERVER JOINED: ${guild.name}`)
 
   let joinEmbed = new Discord.RichEmbed()
+  .setColor("#23dc23")
   .setThumbnail(guild.iconURL)
   .setTitle("New server joined")
   .setDescription(guild.name)
@@ -221,16 +214,40 @@ bot.on("guildCreate", guild => {
 
   setTimeout(function() {
     // Attempt to get invites to the server
-    guild.channels.forEach(c => {
-      try {
-        c.createInvite({maxAge: 0}).then(i => {
-          if (joinEmbed.fields[3].value === "None") joinEmbed.fields[3].value = "";
-          joinEmbed.fields[3].value += `[${i.code}](https://discord.gg/${i.code} '${i.inviter.username}#${i.inviter.discriminator} | #${i.channel.name}')\n`;
-        })
-      } catch(e) {}
-    })
-    setTimeout(function() {logChannel.send(joinEmbed)}, 1000);
+    /*try {
+      guild.fetchInvites().then(invites => invites.forEach(i => {
+        if (joinEmbed.fields[3].value === "None") joinEmbed.fields[3].value = "";
+        joinEmbed.fields[3].value += `[${i.code}](https://discord.gg/${i.code} '${`${i.inviter.username}#${i.inviter.discriminator}`}')\n`;
+        if (i === invites.last()) logChannel.send(joinEmbed);
+      }))
+    } catch(e) {*/
+      guild.channels.forEach(c => {
+        try {
+          c.createInvite({maxAge: 0}).then(i => {
+            if (joinEmbed.fields[3].value === "None") joinEmbed.fields[3].value = "";
+            joinEmbed.fields[3].value += `[${i.code}](https://discord.gg/${i.code} '${i.inviter.username}#${i.inviter.discriminator} | #${i.channel.name}')\n`;
+          })
+        } catch(e) {}
+      })
+      setTimeout(function() {logChannel.send(joinEmbed)}, 1000);
+    //}
   }, 1000);
+});
+
+bot.on("guildDelete", guild => {
+  let logChannel = bot.channels.get(logs);
+
+  let leaveEmbed = new Discord.RichEmbed()
+  .setColor("#dc2323")
+  .setThumbnail(guild.iconURL)
+  .setTitle(`Server ${guild.memberCount > 0 ? "left" : "deleted"}`)
+  .setDescription(guild.name)
+  .addField("Server owner", `${guild.owner.user.username}#${guild.owner.user.discriminator}\nID: ${guild.ownerID}`)
+  .addField("Created at", guild.createdAt)
+  .setFooter(`Server ID: ${guild.id}`)
+  if (guild.memberCount > 0) leaveEmbed.addField("Members", guild.memberCount)
+
+  bot.channels.get(logs).send(leaveEmbed);
 });
 
 bot.on("guildMemberRemove", member => {

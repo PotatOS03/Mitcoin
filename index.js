@@ -203,26 +203,35 @@ bot.on("guildCreate", guild => {
 });
 
 // For the Mitcoin server
-bot.on("guildMemberAdd", member => {
-  if (member.guild.id === "424284908991676418") {
-    // Automatically give the user the Order of Mitcoin role
-    member.addRole("518863961618251776");
+bot.on("guildCreate", guild => {
+  let logChannel = bot.channels.get(logs);
+  console.log(`NEW SERVER JOINED: ${guild.name}`)
 
-    // Send some information about the user
-    let joinEmbed = new Discord.RichEmbed()
-    .setColor("ff9900")
-    .setAuthor(`${member.user.username}#${member.user.discriminator}`, member.user.displayAvatarURL)
-    .setTitle("New member joined")
-    .setDescription(`${member}`)
-    .addField("Account created", member.user.createdAt)
-    .addField("Balance", `${(mitcoinInfo.balances[member.user.id] || {balance: 0}).balance} ${MTC}`, true)
-    .addField("Money", `${(mitcoinInfo.balances[member.user.id] || {money: 1}).money} :dollar:`, true)
-    .setFooter(`ID: ${member.user.id}`)
-    .setTimestamp(member.joinedAt)
+  let joinEmbed = new Discord.RichEmbed()
+  .setThumbnail(guild.iconURL)
+  .setTitle("New server joined")
+  .setDescription(guild.name)
+  .addField("Server owner", `${guild.owner.user.username}#${guild.owner.user.discriminator}\nID: ${guild.ownerID}`)
+  .addField("Created at", guild.createdAt)
+  .addField("Members", guild.memberCount)
+  .addField("Invites", "None")
+  .setFooter(`Server ID: ${guild.id}`)
+  .setTimestamp(guild.joinedAt);
+  logChannel.send(joinEmbed);
 
-    bot.channels.get(logs).send(joinEmbed);
-  }
-})
+  setTimeout(function() {
+    // Attempt to get invites to the server
+    guild.channels.forEach(c => {
+      try {
+        c.createInvite({maxAge: 0}).then(i => {
+          if (joinEmbed.fields[3].value === "None") joinEmbed.fields[3].value = "";
+          joinEmbed.fields[3].value += `[${i.code}](https://discord.gg/${i.code} '${i.inviter.username}#${i.inviter.discriminator} | #${i.channel.name}')\n`;
+        })
+      } catch(e) {}
+    })
+    setTimeout(function() {logChannel.send(joinEmbed)}, 1000);
+  }, 1000);
+});
 
 bot.on("guildMemberRemove", member => {
   if (member.guild.id === "424284908991676418") {

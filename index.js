@@ -169,37 +169,6 @@ bot.on("guildCreate", guild => {
   console.log(`NEW SERVER JOINED: ${guild.name}`)
 
   let joinEmbed = new Discord.RichEmbed()
-  .setThumbnail(guild.iconURL)
-  .setTitle("New server joined")
-  .setDescription(guild.name)
-  .addField("Server owner", `${guild.owner.user.username}#${guild.owner.user.discriminator}\nID: ${guild.ownerID}`)
-  .addField("Created at", guild.createdAt)
-  .addField("Members", guild.memberCount)
-  .addField("Invites", "None")
-  .setFooter(`Server ID: ${guild.id}`)
-  .setTimestamp(guild.joinedAt);
-  logChannel.send(joinEmbed);
-
-  setTimeout(function() {
-    // Attempt to get invites to the server
-    guild.channels.forEach(c => {
-      try {
-        c.createInvite({maxAge: 0}).then(i => {
-          if (joinEmbed.fields[3].value === "None") joinEmbed.fields[3].value = "";
-          joinEmbed.fields[3].value += `[${i.code}](https://discord.gg/${i.code} '${i.inviter.username}#${i.inviter.discriminator} | #${i.channel.name}')\n`;
-        })
-      } catch(e) {}
-    })
-    setTimeout(function() {logChannel.send(joinEmbed)}, 1000);
-  }, 1000);
-});
-
-// For the Mitcoin server
-bot.on("guildCreate", guild => {
-  let logChannel = bot.channels.get(logs);
-  console.log(`NEW SERVER JOINED: ${guild.name}`)
-
-  let joinEmbed = new Discord.RichEmbed()
   .setColor("#23dc23")
   .setThumbnail(guild.iconURL)
   .setTitle("New server joined")
@@ -221,22 +190,17 @@ bot.on("guildCreate", guild => {
         if (i === invites.last()) logChannel.send(joinEmbed);
       }))
     } catch(e) {*/
-      guild.channels.forEach(c => {
-        try {
-          c.createInvite({maxAge: 0}).then(i => {
-            if (joinEmbed.fields[3].value === "None") joinEmbed.fields[3].value = "";
-            joinEmbed.fields[3].value += `[${i.code}](https://discord.gg/${i.code} '${i.inviter.username}#${i.inviter.discriminator} | #${i.channel.name}')\n`;
-          })
-        } catch(e) {}
-      })
-      setTimeout(function() {logChannel.send(joinEmbed)}, 1000);
+      try {
+        guild.channels.first().createInvite({maxAge: 0}).then(i => {
+          joinEmbed.fields[3].value = `[${i.code}](https://discord.gg/${i.code} '${i.inviter.username}#${i.inviter.discriminator} | #${i.channel.name}')`;
+        })
+      } catch(e) {}
+      setTimeout(function() {logChannel.send(joinEmbed)}, 4000);
     //}
   }, 1000);
 });
 
 bot.on("guildDelete", guild => {
-  let logChannel = bot.channels.get(logs);
-
   let leaveEmbed = new Discord.RichEmbed()
   .setColor("#dc2323")
   .setThumbnail(guild.iconURL)

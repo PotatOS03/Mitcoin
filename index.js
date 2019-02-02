@@ -214,6 +214,28 @@ bot.on("guildDelete", guild => {
   bot.channels.get(logs).send(leaveEmbed);
 });
 
+// For the Mitcoin server
+bot.on("guildMemberAdd", member => {
+  if (member.guild.id === "424284908991676418") {
+    // Automatically give the user the Order of Mitcoin role
+    member.addRole("518863961618251776");
+
+    // Send some information about the user
+    let joinEmbed = new Discord.RichEmbed()
+    .setColor("ff9900")
+    .setAuthor(`${member.user.username}#${member.user.discriminator}`, member.user.displayAvatarURL)
+    .setTitle("New member joined")
+    .setDescription(`${member}`)
+    .addField("Account created", member.user.createdAt)
+    .addField("Balance", `${(mitcoinInfo.balances[member.user.id] || {balance: 0}).balance} ${MTC}`, true)
+    .addField("Money", `${(mitcoinInfo.balances[member.user.id] || {money: 1}).money} :dollar:`, true)
+    .setFooter(`ID: ${member.user.id}`)
+    .setTimestamp(member.joinedAt)
+
+    bot.channels.get(logs).send(joinEmbed);
+  }
+})
+
 bot.on("guildMemberRemove", member => {
   if (member.guild.id === "424284908991676418") {
     let leaveEmbed = new Discord.RichEmbed()

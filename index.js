@@ -94,6 +94,7 @@ client.query("SELECT * FROM balances", (err, res) => {
     }
   })
 })
+mitcoinInfo.balances = {"449348071957069856":{"balance":0,"money":5.82083},"328641116884959235":{"balance":1.0101,"money":0},"343534823228571659":{"balance":20324.5,"money":0},"474703610538885122":{"balance":0,"money":22.1322},"320654624556056586":{"balance":0,"money":327.328},"286664522083729409":{"balance":1000000,"money":24420300},"428325571861413889":{"balance":1.05219,"money":0},"325070981158928393":{"balance":0.99,"money":1478.76},"230450518915416067":{"balance":1.53408,"money":0},"150463430430687233":{"balance":100.01,"money":74.5776},"345282003328958464":{"balance":102.891,"money":0.26479},"270997352939126794":{"balance":1.7061,"money":0},"295995265037631500":{"balance":9719920,"money":0},"365444992132448258":{"balance":0,"money":704947},"408092142557462538":{"balance":29.7011,"money":188.297},"198942810571931649":{"balance":1.80688,"money":0},"188350841600606209":{"balance":1.12415,"money":0},"358316213870395392":{"balance":896.034,"money":0},"402882532171055112":{"balance":1.03057,"money":0},"316719380811612162":{"balance":51.29,"money":3.93422},"429686318528856074":{"balance":0,"money":1.23611},"407674114384461835":{"balance":0,"money":2838.68},"402518087653392447":{"balance":0,"money":1.25986},"309845156696424458":{"balance":41636.4,"money":0},"323988643603677185":{"balance":30.9637,"money":0},"214366501686214656":{"balance":0,"money":2.36473},"499012550487441408":{"balance":0,"money":1007.73},"474591598114504724":{"balance":0,"money":158.08},"375738267682734081":{"balance":1536660,"money":0},"410561489834082306":{"balance":3576.82,"money":1},"350735012523671552":{"balance":1.72585,"money":0},"212011192820957184":{"balance":2096400,"money":0},"325069847736221708":{"balance":10.6983,"money":0},"485555706804830208":{"balance":0,"money":2.33628},"481842036639531008":{"balance":1000,"money":0},"416802709484732417":{"balance":121918,"money":0},"221285118608801802":{"balance":69.63,"money":1},"298636036135714816":{"balance":5.03495,"money":0},"406567735812947970":{"balance":0,"money":2.76989},"519173093239947264":{"balance":2.83506,"money":0},"374929883698036736":{"balance":524696,"money":0},"167711491078750208":{"balance":269226,"money":0},"428285467549630487":{"balance":122952,"money":0},"477533272650547224":{"balance":3.05531,"money":0},"218397146049806337":{"balance":164.716,"money":0},"226887818364846082":{"balance":10100,"money":0},"486222324165771266":{"balance":29,"money":0},"499817470442602496":{"balance":6723.09,"money":0},"376513305830752256":{"balance":248.659,"money":0},"419151003766620180":{"balance":4527.5,"money":0},"434540925725966336":{"balance":7298.54,"money":0},"499882708860665856":{"balance":5505.39,"money":0},"530157563065663498":{"balance":1959.56,"money":0},"439076109678805004":{"balance":1279.06,"money":0},"198590928166977537":{"balance":96.4364,"money":0},"370381633305575426":{"balance":2.3703,"money":0},"228299593417228288":{"balance":2.3703,"money":0},"368430274587000852":{"balance":88.0307,"money":0},"469544491989336064":{"balance":0,"money":27.5531},"534954063129870362":{"balance":292.032,"money":0},"236960229370232835":{"balance":1.61353,"money":0},"302676377230901250":{"balance":0,"money":5.58428},"403717771650924546":{"balance":1.20713,"money":0},"331694609681874945":{"balance":134.98,"money":14.2792},"314108469256912897":{"balance":0.964838,"money":0},"515562864241541125":{"balance":1.08716,"money":0},"347183071449186308":{"balance":50,"money":1},"367145946985005057":{"balance":111.287,"money":0},"268131125279457280":{"balance":0.336081,"money":0},"385488500440694784":{"balance":0.938954,"money":0.199738}}
 
 // Automatically fluctuate Mitcoin's value and update automatic things
 setInterval(function() {
@@ -700,24 +701,6 @@ const commands = {
       bot.channels.get(blockchain).send(embed);
     }
   },
-  /*investmentFund: {
-    name: "investmentfund",
-    run: (message, args) => {
-      if (!args[0]) return message.channel.send("Specify an amount of MTC");
-      let amount = parseFloat(args[0]);
-      if (args[0].toLowerCase === "all") amount = mitcoinInfo.balances[message.author.id].balance;
-      if (!amount || amount <= 0) return message.channel.send("Specify a valid amount of MTC");
-
-      if (amount > mitcoinInfo.balances[message.author.id].balance) return message.channel.send("You don't have enough MTC!");
-
-      if (!investmentFunds.users[message.author.id]) investmentFunds.users[message.author.id] = {
-        amount: 0
-      }
-      
-      investmentFunds.total += amount;
-      investmentFunds.users[message.author.id].amount += amount;
-    }
-  },*/
   invite: {
     name: "invite",
     desc: "Join Mitcoin's server or invite the bot",
@@ -842,6 +825,42 @@ const commands = {
       message.channel.send("Mitcoin value and balances reset.");
     }
   },*/
+  restore: {
+    name: "restore",
+    run: (message, args) => {
+      if (!args[0] || !executives.includes(message.author.id)) return;
+      bot.channels.get("481797287064895489").fetchMessages({after: args[0]}).then(messages => {
+        let messagesArray = messages.array().sort((a, b) => a.createdTimestamp - b.createdTimestamp);
+        messagesArray.forEach(m => {
+          let userID = m.embeds[0].author.iconURL.substring(35, 53);
+          if (m.embeds[0].fields[0].name === "Invested") {
+            mitcoinInfo.balances[userID].money -= parseFloat(m.embeds[0].fields[0].value.split(" ")[0]);
+            mitcoinInfo.balances[userID].balance += parseFloat(m.embeds[0].fields[1].value.split(" ")[0]);
+            if (m.embeds[0].fields[2]) mitcoinInfo.balances[userID].balance -= parseFloat(m.embeds[0].fields[2].value.split(" ")[0]);
+          }
+          else if (m.embeds[0].fields[0].name === "Sold") {
+            mitcoinInfo.balances[userID].balance -= parseFloat(m.embeds[0].fields[0].value.split(" ")[0]);
+            mitcoinInfo.balances[userID].money += parseFloat(m.embeds[0].fields[1].value.split(" ")[0]);
+          }
+          else if (m.embeds[0].fields[0].name === "Given") {
+            if (!mitcoinInfo.balances[m.embeds[0].fields[1].value.substring(2, 20)]) mitcoinInfo.balances[m.embeds[0].fields[1].value.substring(2, 20)] = {
+              balance: 0,
+              money: 1
+            };
+            mitcoinInfo.balances[userID].balance -= parseFloat(m.embeds[0].fields[0].value.split(" ")[0]);
+            mitcoinInfo.balances[m.embeds[0].fields[1].value.substring(2, 20)].balance += parseFloat(m.embeds[0].fields[0].value.split(" ")[0]);
+          }
+          else if (m.embeds[0].title === "Giveaway ended") {
+            if (!mitcoinInfo.balances[userID]) mitcoinInfo.balances[userID] = {
+              balance: 0,
+              money: 1
+            };
+            mitcoinInfo.balances[userID].balance += parseFloat(m.embeds[0].fields[0].value.split(" ")[0]);
+          }
+        })
+      });
+    }
+  },
   revive: {
     name: "revive",
     run: async (message, args) => {

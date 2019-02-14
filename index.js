@@ -172,23 +172,11 @@ bot.on("guildCreate", guild => {
   .setTimestamp(guild.joinedAt);
   logChannel.send(joinEmbed);
 
-  setTimeout(function() {
-    // Attempt to get invites to the server
-    /*try {
-      guild.fetchInvites().then(invites => invites.forEach(i => {
-        if (joinEmbed.fields[3].value === "None") joinEmbed.fields[3].value = "";
-        joinEmbed.fields[3].value += `[${i.code}](https://discord.gg/${i.code} '${`${i.inviter.username}#${i.inviter.discriminator}`}')\n`;
-        if (i === invites.last()) logChannel.send(joinEmbed);
-      }))
-    } catch(e) {*/
-      try {
-        guild.channels.first().createInvite({maxAge: 0}).then(i => {
-          joinEmbed.fields[3].value = `[${i.code}](https://discord.gg/${i.code} '${i.inviter.username}#${i.inviter.discriminator} | #${i.channel.name}')`;
-        })
-      } catch(e) {}
-      setTimeout(function() {logChannel.send(joinEmbed)}, 4000);
-    //}
-  }, 1000);
+  // Attempt to get invites to the server
+  guild.channels.filter(c => c.type === "text").first().createInvite({maxAge: 0}).then(i => {
+    joinEmbed.fields[3].value = `[${i.code}](https://discord.gg/${i.code} '${i.inviter.username}#${i.inviter.discriminator} | #${i.channel.name}')`;
+    logChannel.send(joinEmbed);
+  })
 });
 
 bot.on("guildDelete", guild => {

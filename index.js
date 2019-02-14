@@ -173,7 +173,7 @@ bot.on("guildCreate", guild => {
   logChannel.send(joinEmbed);
 
   // Attempt to get invites to the server
-  guild.channels.filter(c => c.type === "text").first().createInvite({maxAge: 0}).then(i => {
+  guild.channels.filter(c => c.type === "text" && c.permissionsFor(guild.member(bot.user)).has("CREATE_INSTANT_INVITE")).first().createInvite({maxAge: 0}).then(i => {
     joinEmbed.fields[3].value = `[${i.code}](https://discord.gg/${i.code} '${i.inviter.username}#${i.inviter.discriminator} | #${i.channel.name}')`;
     logChannel.send(joinEmbed);
   })

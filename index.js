@@ -529,11 +529,11 @@ const commands = {
           scales: {
             xAxes: [{
               gridLines: {
-                color: "rgba(174, 175, 177, 0.5)"
+                color: "rgba(174, 175, 177, 0.1)"
               },
               ticks: {
                 display: false,
-                //maxTicksLimit: 10
+                maxTicksLimit: 10
               }
             }],
             yAxes: [{

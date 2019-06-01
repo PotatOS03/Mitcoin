@@ -511,7 +511,7 @@ const commands = {
       let chartNode = new ChartjsNode(1000, 600);
       return chartNode.drawChart({
         type: "line",
-        backgroundColor: null,
+        backgroundColor: "#FF9900",
         data: {
           labels: labels,
           datasets: [{

@@ -12,12 +12,12 @@
     "node": "15.x"
   },
   "dependencies": {
-    "canvas": "^1.6.12",
-    "chart.js": "^2.7.2",
-    "chartjs-node": "^1.7.1",
+    "canvas": "^1.x",
+    "chart.js": "^2.x",
+    "chartjs-node": "^1.x",
     "discord.js": "^12.x",
-    "longjohn": "^0.2.12",
-    "ms": "^2.1.1",
-    "pg": "^7.4.3"
+    "longjohn": "^0.x",
+    "ms": "^2.x",
+    "pg": "^7.x"
   }
 }

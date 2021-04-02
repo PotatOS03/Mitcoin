@@ -8,6 +8,9 @@
   },
   "author": "PotatOS03",
   "license": "ISC",
+  "engines": {
+    "node": "15.x"
+  },
   "dependencies": {
     "canvas": "^1.6.12",
     "chart.js": "^2.7.2",

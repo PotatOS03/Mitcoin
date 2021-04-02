@@ -39,7 +39,7 @@ const botconfig = require("./botconfig.json");
 const Discord = require("discord.js");
 const fs = require("fs");
 const ms = require("ms");
-const bot = new Discord.Client({disableEveryone: true});
+const bot = new Discord.Client({disableMentions: "everyone"});
 
 // Some other specific things to set up
 let maintenance = false; // Whether the bot is in maintenance mode
@@ -124,18 +124,18 @@ setInterval(function() {
     }
   }
   
-  bot.guilds.get("424284908991676418").members.forEach(m => {
+  bot.guilds.cache.get("424284908991676418").members.forEach(m => {
     // Richest of the Rich
-    if (m.roles.has("527225117818880000") && mitcoinInfo.balances[m.user.id] !== mitcoinInfo.balances[ids[0]]) m.removeRole("527225117818880000");
-    else if (!m.roles.has("527225117818880000") && mitcoinInfo.balances[m.user.id] === mitcoinInfo.balances[ids[0]] && ids[0]) m.addRole("527225117818880000");
+    if (m.roles.cache.has("527225117818880000") && mitcoinInfo.balances[m.user.id] !== mitcoinInfo.balances[ids[0]]) m.roles.remove("527225117818880000");
+    else if (!m.roles.cache.has("527225117818880000") && mitcoinInfo.balances[m.user.id] === mitcoinInfo.balances[ids[0]] && ids[0]) m.roles.add("527225117818880000");
 
     // Leaderboard Member
-    if (m.roles.has("527225117818880000") || (m.roles.has("530794529612365863") && !ids.includes(m.user.id))) m.removeRole("530794529612365863");
-    else if (!m.roles.has("527225117818880000") && !m.roles.has("530794529612365863") && ids.includes(m.user.id)) m.addRole("530794529612365863");
+    if (m.roles.cache.has("527225117818880000") || (m.roles.cache.has("530794529612365863") && !ids.includes(m.user.id))) m.roles.remove("530794529612365863");
+    else if (!m.roles.cache.has("527225117818880000") && !m.roles.cache.has("530794529612365863") && ids.includes(m.user.id)) m.roles.add("530794529612365863");
 
     // Mitcoin Millionaire
-    if (m.roles.has("530794639301673000") && mitcoinInfo.balances[m.user.id] && mitcoinInfo.balances[m.user.id].balance < 1000000) m.removeRole("530794639301673000");
-    else if (!m.roles.has("530794639301673000") && mitcoinInfo.balances[m.user.id] && mitcoinInfo.balances[m.user.id].balance >= 1000000) m.addRole("530794639301673000");
+    if (m.roles.cache.has("530794639301673000") && mitcoinInfo.balances[m.user.id] && mitcoinInfo.balances[m.user.id].balance < 1000000) m.roles.remove("530794639301673000");
+    else if (!m.roles.cache.has("530794639301673000") && mitcoinInfo.balances[m.user.id] && mitcoinInfo.balances[m.user.id].balance >= 1000000) m.roles.add("530794639301673000");
   })
 }, fluctuationTime);
 
@@ -143,7 +143,7 @@ setInterval(function() {
 bot.on("ready", async () => {
   if (Object.keys(mitcoinInfo.balances).length <= 0 && bot.user.id === "430468476038152194") {
     console.log("Database not loaded properly?");
-    bot.users.get(executives[0]).send("Database not loaded properly?").then(setTimeout(function() {process.exit(0);}, 0));
+    bot.users.cache.get(executives[0]).send("Database not loaded properly?").then(setTimeout(function() {process.exit(0);}, 0));
   }
 
   console.log(`${bot.user.username} is online in ${bot.guilds.size} servers!`);
@@ -156,12 +156,12 @@ bot.on("ready", async () => {
 
 // Send an alert when the bot joins a new server
 bot.on("guildCreate", guild => {
-  let logChannel = bot.channels.get(logs);
+  let logChannel = bot.channels.cache.get(logs);
   console.log(`NEW SERVER JOINED: ${guild.name}`)
 
-  let joinEmbed = new Discord.RichEmbed()
+  let joinEmbed = new Discord.MessageEmbed()
   .setColor("#23dc23")
-  .setThumbnail(guild.iconURL)
+  .setThumbnail(guild.iconURL())
   .setTitle("New server joined")
   .setDescription(guild.name)
   .addField("Server owner", `${guild.owner.user.username}#${guild.owner.user.discriminator}\nID: ${guild.ownerID}`)
@@ -173,16 +173,16 @@ bot.on("guildCreate", guild => {
   logChannel.send(joinEmbed);
 
   // Attempt to get invites to the server
-  guild.channels.filter(c => c.type === "text" && c.permissionsFor(guild.member(bot.user)).has("CREATE_INSTANT_INVITE")).first().createInvite({maxAge: 0}).then(i => {
+  guild.channels.cache.filter(c => c.type === "text" && c.permissionsFor(guild.member(bot.user)).has("CREATE_INSTANT_INVITE")).first().createInvite({maxAge: 0}).then(i => {
     joinEmbed.fields[3].value = `[${i.code}](https://discord.gg/${i.code} '${i.inviter.username}#${i.inviter.discriminator} | #${i.channel.name}')`;
     logChannel.send(joinEmbed);
   })
 });
 
 bot.on("guildDelete", guild => {
-  let leaveEmbed = new Discord.RichEmbed()
+  let leaveEmbed = new Discord.MessageEmbed()
   .setColor("#dc2323")
-  .setThumbnail(guild.iconURL)
+  .setThumbnail(guild.iconURL())
   .setTitle(`Server ${guild.memberCount > 0 ? "left" : "deleted"}`)
   .setDescription(guild.name)
   .addField("Server owner", `${guild.owner.user.username}#${guild.owner.user.discriminator}\nID: ${guild.ownerID}`)
@@ -190,19 +190,19 @@ bot.on("guildDelete", guild => {
   .setFooter(`Server ID: ${guild.id}`)
   if (guild.memberCount > 0) leaveEmbed.addField("Members", guild.memberCount)
 
-  bot.channels.get(logs).send(leaveEmbed);
+  bot.channels.cache.get(logs).send(leaveEmbed);
 });
 
 // For the Mitcoin server
 bot.on("guildMemberAdd", member => {
   if (member.guild.id === "424284908991676418") {
     // Automatically give the user the Order of Mitcoin role
-    member.addRole("518863961618251776");
+    member.roles.add("518863961618251776");
 
     // Send some information about the user
-    let joinEmbed = new Discord.RichEmbed()
+    let joinEmbed = new Discord.MessageEmbed()
     .setColor("ff9900")
-    .setAuthor(`${member.user.username}#${member.user.discriminator}`, member.user.displayAvatarURL)
+    .setAuthor(`${member.user.username}#${member.user.discriminator}`, member.user.displayAvatarURL())
     .setTitle("New member joined")
     .setDescription(`${member}`)
     .addField("Account created", member.user.createdAt)
@@ -211,21 +211,21 @@ bot.on("guildMemberAdd", member => {
     .setFooter(`ID: ${member.user.id}`)
     .setTimestamp(member.joinedAt)
 
-    bot.channels.get(logs).send(joinEmbed);
+    bot.channels.cache.get(logs).send(joinEmbed);
   }
 })
 
 bot.on("guildMemberRemove", member => {
   if (member.guild.id === "424284908991676418") {
-    let leaveEmbed = new Discord.RichEmbed()
+    let leaveEmbed = new Discord.MessageEmbed()
     .setColor("ff9900")
-    .setAuthor(`${member.user.username}#${member.user.discriminator}`, member.user.displayAvatarURL)
+    .setAuthor(`${member.user.username}#${member.user.discriminator}`, member.user.displayAvatarURL())
     .setTitle("Member left")
     .setDescription(`${member}`)
     .setFooter(`ID: ${member.user.id}`)
     .addField("Joined at", member.joinedAt)
 
-    bot.channels.get(logs).send(leaveEmbed);
+    bot.channels.cache.get(logs).send(leaveEmbed);
   }
 })
 
@@ -239,7 +239,7 @@ const commands = {
       // Whose balance is being shown
       let balUser = message.author;
       if (executives.includes(message.author.id)) {
-        balUser = message.mentions.members.first() || bot.users.get(args[0] || message.author.id) || message.author;
+        balUser = message.mentions.members.first() || bot.users.cache.get(args[0] || message.author.id) || message.author;
       }
       balUser = balUser.user || balUser;
       if (balUser.bot) balUser = message.author;
@@ -254,9 +254,9 @@ const commands = {
       let MTCBal = mitcoinInfo.balances[balUser.id].balance;
   
       // Embed to show the user's balance information
-      let balEmbed = new Discord.RichEmbed()
+      let balEmbed = new Discord.MessageEmbed()
       .setColor("ff9900")
-      .setAuthor(balUser.username, balUser.displayAvatarURL)
+      .setAuthor(balUser.username, balUser.displayAvatarURL())
       .setThumbnail("https://cdn.discordapp.com/attachments/495366302542594058/504035403620155423/iur.png")
       .addField("Mitcoin", `${MTCBal.toFixed(3)} ${MTC}`, true)
       .addField("Equivalent value", `${(mitcoinInfo.value * MTCBal).toFixed(3)} :dollar:`, true)
@@ -277,7 +277,7 @@ const commands = {
       // DM the list of blacklisted users
       if (!args[0]) return message.author.send(`**List of blacklisted users:**\n${mitcoinInfo.blacklist.length > 0 ? `<@${mitcoinInfo.blacklist.join(">\n<@")}>` : "None"}`);
 
-      let blacklistUser = bot.users.get(args[0]) || bot.users.find(u => u.username === args.join(" ")) || message.mentions.members.first();
+      let blacklistUser = bot.users.cache.get(args[0]) || bot.users.find(u => u.username === args.join(" ")) || message.mentions.members.first();
       if (!blacklistUser) return message.channel.send(`${args.join(" ")} is not a valid user`);
       blacklistUser = blacklistUser.user || blacklistUser;
 
@@ -313,7 +313,7 @@ const commands = {
       if (time >= 60000) timeString += `${Math.floor((time % 3600000) / 60000)} minutes`;
 
       // Embed to show the percent change in value
-      let changeEmbed = new Discord.RichEmbed()
+      let changeEmbed = new Discord.MessageEmbed()
       .setColor("#ff9900")
       .setTitle(`Mitcoin change over the past ${timeString}`)
       .addField(`${time / fluctuationTime} fluctuations`, `${Math.round(mitcoinInfo.value / mitcoinInfo.history[mitcoinInfo.history.length - time / fluctuationTime - 1] * 100)}%`)
@@ -328,11 +328,11 @@ const commands = {
       let complaint = args.join(" ");
       if (!complaint) return message.channel.send("Specify a message");
       // Log channel to send the complain in
-      let complaintChannel = bot.channels.get(logs);
+      let complaintChannel = bot.channels.cache.get(logs);
       // Send the complaint in an embed
-      let complaintEmbed = new Discord.RichEmbed()
+      let complaintEmbed = new Discord.MessageEmbed()
       .setColor("#ff9900")
-      .setAuthor(message.author.username, message.author.displayAvatarURL)
+      .setAuthor(message.author.username, message.author.displayAvatarURL())
       .addField("New complaint", complaint)
       .setTimestamp(message.createdAt);
       // Confirm that the complain was sent successfully
@@ -354,7 +354,7 @@ const commands = {
       if (!args[0]) return message.channel.send("Specify a user to pay");
   
       // First user that is mentioned
-      let payUser = bot.users.get(args[0]) || message.mentions.members.first();
+      let payUser = bot.users.cache.get(args[0]) || message.mentions.members.first();
       if (!payUser) return message.channel.send("Specify a valid user");
       payUser = payUser.user || payUser;
       
@@ -388,15 +388,15 @@ const commands = {
       message.channel.send(`${message.author} has given ${payAmount} ${MTC} to ${payUser.username}#${payUser.discriminator}`);
 
       // Send it in the blockchain
-      let embed = new Discord.RichEmbed()
+      let embed = new Discord.MessageEmbed()
       .setColor("#ff9900")
-      .setAuthor(`${message.author.username}#${message.author.discriminator}`, message.author.displayAvatarURL)
+      .setAuthor(`${message.author.username}#${message.author.discriminator}`, message.author.displayAvatarURL())
       .addField("Given", `${payAmount} ${MTC}`)
       .addField("Equivalent Amount", `${payAmount * mitcoinInfo.value} :dollar:`)
       .addField("Recipient", `<@${payUser.id}>`)
       .setTimestamp(message.createdAt);
 
-      bot.channels.get(blockchain).send(embed);
+      bot.channels.cache.get(blockchain).send(embed);
     }
   },
   giveaway: {
@@ -422,7 +422,7 @@ const commands = {
       let winAmount = Math.random().toFixed(2) * (max - min) + min;
 
       // Embed for users to react to
-      let giveEmbed = new Discord.RichEmbed()
+      let giveEmbed = new Discord.MessageEmbed()
       .setColor("#ff9900")
       .setTitle(`New ${MTC} Giveaway!`)
       .addField(`How much MTC is available?`, winAmount)
@@ -440,7 +440,7 @@ const commands = {
           msg.delete();
 
           // Determine who reacted to the message
-          let entries = msg.reactions.get(MTC.split(/<:|>/)[1]);
+          let entries = msg.reactions.cache.get(MTC.split(/<:|>/)[1]);
           
           // If no one reacted
           if (!entries || entries.count <= 1) return message.channel.send("**No one reacted to the giveaway!**\n__Make sure to react before the time runs out.__");
@@ -464,7 +464,7 @@ const commands = {
             mitcoinInfo.balances[winUser.id].balance += winAmount;
 
             // Show the giveaway in a new embed
-            let winEmbed = new Discord.RichEmbed()
+            let winEmbed = new Discord.MessageEmbed()
             .setColor("#ff9900")
             .setTitle(`${MTC} Giveaway ended!`)
             .addField("Winner", `<@${winUser.id}>`)
@@ -474,15 +474,15 @@ const commands = {
             message.channel.send(winEmbed);
             
             // Send it in the blockchain
-            let embed = new Discord.RichEmbed()
+            let embed = new Discord.MessageEmbed()
             .setColor("#ff9900")
             .setTitle("Giveaway ended")
-            .setAuthor(`${winUser.username}#${winUser.discriminator}`, winUser.displayAvatarURL)
+            .setAuthor(`${winUser.username}#${winUser.discriminator}`, winUser.displayAvatarURL())
             .addField("Prize", `${winAmount} ${MTC}`)
             .addField("Participants", entries.count - 1)
             .setTimestamp(msg.createdAt);
             
-            bot.channels.get(blockchain).send(embed);
+            bot.channels.cache.get(blockchain).send(embed);
           })
         }, ms(time))
       })
@@ -603,7 +603,7 @@ const commands = {
     name: "help",
     run: (message, args) => {
       // Create an embed with all user commands
-      let helpEmbed = new Discord.RichEmbed()
+      let helpEmbed = new Discord.MesssageEmbed()
       .setDescription("List of commands")
       .setColor("ff9900")
       .addField("Prefix", botconfig.prefix)
@@ -668,15 +668,15 @@ const commands = {
       else message.channel.send(`${message.author} has earned ${(investAmount / mitcoinInfo.value * (investAmount / mitcoinInfo.value >= 100 ? 0.95 : 1)).toFixed(3)} ${MTC} after investing ${investAmount.toFixed(3)} :dollar: and cannot invest any more :dollar:`);
 
       // Send it in the blockchain
-      let embed = new Discord.RichEmbed()
+      let embed = new Discord.MessageEmbed()
       .setColor("#ff9900")
-      .setAuthor(`${message.author.username}#${message.author.discriminator}`, message.author.displayAvatarURL)
+      .setAuthor(`${message.author.username}#${message.author.discriminator}`, message.author.displayAvatarURL())
       .addField("Invested", `${investAmount} :dollar:`)
       .addField("Equivalent Amount", `${investAmount / mitcoinInfo.value} ${MTC}`)
       if (investAmount / mitcoinInfo.value >= 100) embed.addField("Tax", `${investAmount / mitcoinInfo.value * 0.05} ${MTC}`)
       .setTimestamp(message.createdAt);
       
-      bot.channels.get(blockchain).send(embed);
+      bot.channels.cache.get(blockchain).send(embed);
     }
   },
   invite: {
@@ -685,12 +685,12 @@ const commands = {
     run: (message, args) => {
       // How many humans are in the Mitcoin server
       let serverMembers = 0;
-      bot.guilds.get("424284908991676418").members.forEach(member => {
+      bot.guilds.cache.get("424284908991676418").members.forEach(member => {
         if (!member.user.bot) serverMembers++;
       })
 
       // Send an embed for Mitcoin Bot's OAuth link and Mitcoin server invite
-      let inviteEmbed = new Discord.RichEmbed().setColor("ff9900").addField("Invite Mitcoin Bot", `[OAuth2 link](https://discordapp.com/api/oauth2/authorize?client_id=430468476038152194&permissions=1878392257&scope=bot 'Mitcoin used in ${bot.guilds.size} servers')`).addField("Official Mitcoin Server", `[yhV8bqz](https://discord.gg/yhV8bqz '${serverMembers} members')`);
+      let inviteEmbed = new Discord.MessageEmbed().setColor("ff9900").addField("Invite Mitcoin Bot", `[OAuth2 link](https://discordapp.com/api/oauth2/authorize?client_id=430468476038152194&permissions=1878392257&scope=bot 'Mitcoin used in ${bot.guilds.size} servers')`).addField("Official Mitcoin Server", `[yhV8bqz](https://discord.gg/yhV8bqz '${serverMembers} members')`);
       message.channel.send(inviteEmbed);
     }
   },
@@ -746,10 +746,10 @@ const commands = {
       }
       
       // Rich embed message to send the leaderboard in
-      let lEmbed = new Discord.RichEmbed()
+      let lEmbed = new Discord.MessageEmbed()
       .setColor("ff9900")
       .setDescription(type === 0 ? "Mitcoin Leaderboard" : type === 1 ? "Money leaderboard" : "Overall leaderboard")
-      .setThumbnail(bot.user.displayAvatarURL)
+      .setThumbnail(bot.user.displayAvatarURL())
       .addField("First Place", `${usernames.usernames[0]}#${usernames.discriminators[0]} | ${(type === 0 ? leaderboard[0].balance : type === 1 ? leaderboard[0].money : leaderboard[0].money + leaderboard[0].balance * mitcoinInfo.value).toFixed(2)} ${type === 0 ? MTC : ":dollar:"}`)
       if (leaderboard[1] && leaderboard[1].balance + leaderboard[1].money > 0) lEmbed.addField("Second Place", `${usernames.usernames[1]}#${usernames.discriminators[1]} | ${(type === 0 ? leaderboard[1].balance : type === 1 ? leaderboard[1].money : leaderboard[1].money + leaderboard[1].balance * mitcoinInfo.value).toFixed(2)} ${type === 0 ? MTC : ":dollar:"}`)
       if (leaderboard[2] && leaderboard[2].balance + leaderboard[2].money > 0) lEmbed.addField("Third Place", `${usernames.usernames[2]}#${usernames.discriminators[2]} | ${(type === 0 ? leaderboard[2].balance : type === 1 ? leaderboard[2].money : leaderboard[2].money + leaderboard[2].balance * mitcoinInfo.value).toFixed(2)} ${type === 0 ? MTC : ":dollar:"}`)
@@ -766,7 +766,7 @@ const commands = {
     desc: "See the Mitcoin logo",
     run: (message, args) => {
       // Rich embed to send the logo in
-      let logoEmbed = new Discord.RichEmbed()
+      let logoEmbed = new Discord.MessageEmbed()
       .setTitle("Don't Delay. Invest Today!")
       .setColor("ff9900")
       .setImage("https://cdn.discordapp.com/attachments/424284909473890318/519690965104066563/unknown_7.15.17_PM.png");
@@ -807,10 +807,10 @@ const commands = {
     name: "restore",
     run: (message, args) => {
       if (!args[0] || !executives.includes(message.author.id)) return;
-      bot.channels.get("481797287064895489").fetchMessages({after: args[0]}).then(messages => {
+      bot.channels.cache.get("481797287064895489").messages.fetch({after: args[0]}).then(messages => {
         let messagesArray = messages.array().sort((a, b) => a.createdTimestamp - b.createdTimestamp);
         messagesArray.forEach(m => {
-          let userID = m.embeds[0].author.iconURL.substring(35, 53);
+          let userID = m.embeds[0].author.iconURL().substring(35, 53); // This is probably broken now
           if (m.embeds[0].fields[0].name === "Invested") {
             mitcoinInfo.balances[userID].money -= parseFloat(m.embeds[0].fields[0].value.split(" ")[0]);
             mitcoinInfo.balances[userID].balance += parseFloat(m.embeds[0].fields[1].value.split(" ")[0]);
@@ -848,11 +848,11 @@ const commands = {
       message.delete();
       if (!args[0] || !parseInt(args[0])) return message.channel.send("Specify the message ID");
       
-      message.channel.fetchMessage(args[0]).then(msg => {
+      message.channel.messages.fetch(args[0]).then(msg => {
         if (msg.reactions.size <= 0 || msg.content.length > 0 || msg.author.id !== bot.user.id || msg.embeds[0].title !== `New ${MTC} Giveaway!`) return message.channel.send("Message is not a giveaway");
         
         // Determine who reacted to the message
-        let entries = msg.reactions.get(MTC.split(/<:|>/)[1]);
+        let entries = msg.reactions.cache.get(MTC.split(/<:|>/)[1]);
 
         // If no one reacted
         if (!entries || entries.count <= 1) return msg.delete().then(message.channel.send("**No one reacted to the giveaway!**\n__Make sure to react before the time runs out.__"));
@@ -862,7 +862,7 @@ const commands = {
         
         // Find which user was the random winner
         let winUser = 0;
-        entries.fetchUsers().then(users => {
+        entries.users.fetch().then(users => {
           users.forEach(r => {
             if (!r.bot && winner <= 0 && winUser === 0) winUser = r;
             winner--;
@@ -880,7 +880,7 @@ const commands = {
           mitcoinInfo.balances[winUser.id].balance += winAmount;
           
           // Show the giveaway in a new embed
-          let winEmbed = new Discord.RichEmbed()
+          let winEmbed = new Discord.MessageEmbed()
           .setColor("#ff9900")
           .setTitle(`${MTC} Giveaway ended!`)
           .addField("Winner", `<@${winUser.id}>`)
@@ -891,15 +891,15 @@ const commands = {
           message.channel.send(winEmbed);
             
           // Send it in the blockchain
-          let embed = new Discord.RichEmbed()
+          let embed = new Discord.MessageEmbed()
           .setColor("#ff9900")
           .setTitle("Giveaway ended")
-          .setAuthor(`${winUser.username}#${winUser.discriminator}`, winUser.displayAvatarURL)
+          .setAuthor(`${winUser.username}#${winUser.discriminator}`, winUser.displayAvatarURL())
           .addField("Prize", `${winAmount} ${MTC}`)
           .addField("Participants", entries.count - 1)
           .setTimestamp(msg.createdAt);
           
-          bot.channels.get(blockchain).send(embed);
+          bot.channels.cache.get(blockchain).send(embed);
         })
       }).catch(error => {
         message.channel.send("Specify a valid message ID");
@@ -952,14 +952,14 @@ const commands = {
       message.channel.send(`${message.author} has sold ${sellAmount.toFixed(3)} ${MTC} and recieved ${(sellAmount * mitcoinInfo.value).toFixed(3)} :dollar:`);
 
       // Send it in the blockchain
-      let embed = new Discord.RichEmbed()
+      let embed = new Discord.MessageEmbed()
       .setColor("#ff9900")
-      .setAuthor(`${message.author.username}#${message.author.discriminator}`, message.author.displayAvatarURL)
+      .setAuthor(`${message.author.username}#${message.author.discriminator}`, message.author.displayAvatarURL())
       .addField("Sold", `${sellAmount} ${MTC}`)
       .addField("Equivalent Amount", `${sellAmount * mitcoinInfo.value} :dollar:`)
       .setTimestamp(message.createdAt);
 
-      bot.channels.get(blockchain).send(embed);
+      bot.channels.cache.get(blockchain).send(embed);
     }
   },
   uptime: {

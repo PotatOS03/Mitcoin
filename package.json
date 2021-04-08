@@ -12,7 +12,7 @@
     "node": "15.x"
   },
   "dependencies": {
-    "canvas": "^1.x",
+    "canvas": "^1.8.3",
     "chart.js": "^2.x",
     "chartjs-node": "^1.x",
     "discord.js": "^12.x",
